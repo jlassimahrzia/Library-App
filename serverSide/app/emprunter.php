@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class emprunter extends Model
+class Emprunter extends Model
 {
     protected $table = 'emprunters';
     protected $primaryKey = 'id';
