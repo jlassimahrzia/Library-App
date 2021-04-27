@@ -33,8 +33,8 @@ const Register = () => {
 
   const onSubmit = e => {
       e.preventDefault();
-      axios.post("http://localhost:8000/api/register",state ).
-          then(res =>{
+      axios.post("http://localhost:8000/api/register",state )
+          .then(res =>{
               console.log(res);
               console.log("success");
               history.push('/');

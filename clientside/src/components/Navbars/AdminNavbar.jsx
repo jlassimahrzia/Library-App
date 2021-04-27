@@ -9,12 +9,6 @@ import {
   DropdownItem,
   UncontrolledDropdown,
   DropdownToggle,
-  Form,
-  FormGroup,
-  InputGroupAddon,
-  InputGroupText,
-  Input,
-  InputGroup,
   Navbar,
   Nav,
   Container,
@@ -34,14 +28,14 @@ function AdminNavbar(props){
       };
       await axios.post("http://localhost:8000/api/logout",null,options)
          .then(res =>{
-              console.log(res);
-              console.log("success");
+              //console.log(res);
+              //console.log("success");
               CookieService.remove("access_token");
               history.push('/');
           })
          .catch(error => {
-              console.log(error);
-              console.log("fail");
+              //console.log(error);
+              //console.log("fail");
               alert("Try agian");
          }); 
   }
@@ -56,7 +50,7 @@ function AdminNavbar(props){
           >
             {props.brandText}
           </Link>
-          <Form className="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
+          {/* <Form className="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
             <FormGroup className="mb-0">
               <InputGroup className="input-group-alternative">
                 <InputGroupAddon addonType="prepend">
@@ -67,7 +61,7 @@ function AdminNavbar(props){
                 <Input placeholder="Search" type="text" />
               </InputGroup>
             </FormGroup>
-          </Form>
+          </Form> */}
           <Nav className="align-items-center d-none d-md-flex" navbar>
             <UncontrolledDropdown nav>
               <DropdownToggle className="pr-0" nav>
@@ -90,13 +84,13 @@ function AdminNavbar(props){
               </DropdownToggle>
               <DropdownMenu className="dropdown-menu-arrow" right>
                 <DropdownItem className="noti-title" header tag="div">
-                  <h6 className="text-overflow m-0">Welcome!</h6>
+                  <h6 className="text-overflow m-0">Bienvenu!</h6>
                 </DropdownItem>
                 <DropdownItem to="/admin/user-profile" tag={Link}>
                   <i className="ni ni-single-02" />
-                  <span>My profile</span>
+                  <span>Profile</span>
                 </DropdownItem>
-                <DropdownItem to="/admin/user-profile" tag={Link}>
+                {/* <DropdownItem to="/admin/user-profile" tag={Link}>
                   <i className="ni ni-settings-gear-65" />
                   <span>Settings</span>
                 </DropdownItem>
@@ -107,11 +101,11 @@ function AdminNavbar(props){
                 <DropdownItem to="/admin/user-profile" tag={Link}>
                   <i className="ni ni-support-16" />
                   <span>Support</span>
-                </DropdownItem>
+                </DropdownItem> */}
                 <DropdownItem divider />
                 <DropdownItem onClick={logout}>
                   <i className="ni ni-user-run" />
-                  <span>Logout</span>
+                  <span>Déconnecter</span>
                 </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>

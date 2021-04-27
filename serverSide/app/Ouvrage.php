@@ -12,7 +12,7 @@ class Ouvrage extends Model
 
     public function categorie()
     {
-        return $this->hasMany('App\Categorie');
+        return $this->belongsTo('App\Categorie');
     }
 
     public function emprunters()

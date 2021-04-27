@@ -19,7 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('photo')->nullable();
+            $table->string('photo');
             $table->decimal('cin', $precision = 8, $scale = 0)->nullable();
             $table->decimal('numCarte', $precision = 8, $scale = 0)->nullable();
             $table->string('numInscription')->nullable();
@@ -31,7 +31,6 @@ class CreateUsersTable extends Migration
             $table->decimal('codePostal', $precision = 4, $scale = 0)->nullable();
             $table->string('niveau')->nullable();
             $table->string('classe')->nullable();
-            $table->string('annee_universiatire')->nullable();
             $table->enum('type', ['0' , '1' , '2']); // 0: Admin 1: interne 2: externe
             $table->rememberToken();
             $table->timestamps();

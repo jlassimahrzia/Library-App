@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add axios
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add react-pdf-viewer
 
 PATH: 
   C:\app\ASUS\product\11.2.0\dbhome_1\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\xampp\php;C:\ProgramData\ComposerSetup\bin;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Microsoft VS Code\bin;C:\Program Files (x86)\Yarn\bin\;C:\jdk-13.0.2\bin;C:\Users\ASUS\AppData\Local\Microsoft\WindowsApps;C:\Users\ASUS\AppData\Roaming\Composer\vendor\bin;C:\Program Files\MongoDB\Server\4.0\bin;C:\Program Files\Microsoft VS Code\bin;C:\Users\ASUS\AppData\Roaming\npm;C:\Users\ASUS\AppData\Local\Yarn\bin;;C:\altera\13.0\modelsim_ase\win32aloem
@@ -64,6 +64,7 @@ npm manifest:
       ],
       "dependencies": {
           "@fortawesome/fontawesome-free": "5.15.2",
+          "axios": "^0.21.1",
           "bootstrap": "4.6.0",
           "chart.js": "2.9.4",
           "classnames": "2.2.6",
@@ -78,7 +79,8 @@ npm manifest:
           "react-dom": "17.0.1",
           "react-router-dom": "5.2.0",
           "react-scripts": "4.0.1",
-          "reactstrap": "8.9.0"
+          "reactstrap": "8.9.0",
+          "universal-cookie": "^4.0.4"
       },
       "devDependencies": {
           "gulp": "4.0.2",

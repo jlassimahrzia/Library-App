@@ -18,10 +18,10 @@ class CreateEmpruntersTable extends Migration
             $table->date('dateDebut');
             $table->date('dateFin');
             $table->enum('rendu',['oui','non']);
-            $table->unsignedBigInteger('idOuvrage');
-            $table->unsignedBigInteger('idUser');
-            $table->foreign('idOuvrage')->references('id')->on('ouvrages')->onDelete('cascade');
-            $table->foreign('idUser')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('ouvrage_id');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('ouvrage_id')->references('id')->on('ouvrages')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

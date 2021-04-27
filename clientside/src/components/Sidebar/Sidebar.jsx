@@ -1,21 +1,3 @@
-/*!
-
-=========================================================
-* Argon Dashboard React - v1.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-/*eslint-disable*/
 import React, { useState } from "react";
 import { NavLink as NavLinkRRD, Link } from "react-router-dom";
 // nodejs library to set properties for components
@@ -23,17 +5,11 @@ import { PropTypes } from "prop-types";
 
 // reactstrap components
 import {
-  Button,
-  Card,
-  CardHeader,
-  CardBody,
-  CardTitle,
   Collapse,
   DropdownMenu,
   DropdownItem,
   UncontrolledDropdown,
   DropdownToggle,
-  FormGroup,
   Form,
   Input,
   InputGroupAddon,
@@ -45,21 +21,19 @@ import {
   NavItem,
   NavLink,
   Nav,
-  Progress,
-  Table,
   Container,
   Row,
   Col,
 } from "reactstrap";
 
-var ps;
+//var ps;
 
 const Sidebar = (props) => {
   const [collapseOpen, setCollapseOpen] = useState();
   // verifies if routeName is the one active (in browser input)
-  const activeRoute = (routeName) => {
+ /* const activeRoute = (routeName) => {
     return props.location.pathname.indexOf(routeName) > -1 ? "active" : "";
-  };
+  };*/
   // toggles collapse between opened and closed (true/false)
   const toggleCollapse = () => {
     setCollapseOpen((data) => !data);
@@ -71,23 +45,28 @@ const Sidebar = (props) => {
   // creates the links that appear in the left menu / Sidebar
   const createLinks = (routes) => {
     return routes.map((prop, key) => {
-      return (
-        <NavItem key={key}>
-          <NavLink
-            to={prop.layout + prop.path}
-            tag={NavLinkRRD}
-            onClick={closeCollapse}
-            activeClassName="active"
-          >
-            <i className={prop.icon} />
-            {prop.name}
-          </NavLink>
-        </NavItem>
-      );
+      if (prop.layout === "/admin") {
+        return (
+          <NavItem key={key}>
+            <NavLink
+              to={prop.layout + prop.path}
+              tag={NavLinkRRD}
+              onClick={closeCollapse}
+              activeClassName="active"
+            >
+              <i className={prop.icon} />
+              {prop.name}
+            </NavLink>
+          </NavItem>
+        );
+      } else {
+        return null;
+      }
     });
   };
 
-  const { bgColor, routes, logo } = props;
+  //const { bgColor, routes, logo } = props;
+  const { routes, logo } = props;
   let navbarBrandProps;
   if (logo && logo.innerLink) {
     navbarBrandProps = {
@@ -159,13 +138,13 @@ const Sidebar = (props) => {
             </DropdownToggle>
             <DropdownMenu className="dropdown-menu-arrow" right>
               <DropdownItem className="noti-title" header tag="div">
-                <h6 className="text-overflow m-0">Welcome!</h6>
+                <h6 className="text-overflow m-0">Bienvenu!</h6>
               </DropdownItem>
               <DropdownItem to="/admin/user-profile" tag={Link}>
                 <i className="ni ni-single-02" />
-                <span>My profile</span>
+                <span>Profile</span>
               </DropdownItem>
-              <DropdownItem to="/admin/user-profile" tag={Link}>
+              {/* <DropdownItem to="/admin/user-profile" tag={Link}>
                 <i className="ni ni-settings-gear-65" />
                 <span>Settings</span>
               </DropdownItem>
@@ -176,11 +155,11 @@ const Sidebar = (props) => {
               <DropdownItem to="/admin/user-profile" tag={Link}>
                 <i className="ni ni-support-16" />
                 <span>Support</span>
-              </DropdownItem>
+              </DropdownItem> */}
               <DropdownItem divider />
               <DropdownItem href="#pablo" onClick={(e) => e.preventDefault()}>
                 <i className="ni ni-user-run" />
-                <span>Logout</span>
+                <span>Déconnecte</span>
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
@@ -236,33 +215,25 @@ const Sidebar = (props) => {
           {/* Divider */}
           <hr className="my-3" />
           {/* Heading */}
-          <h6 className="navbar-heading text-muted">Documentation</h6>
+          <h6 className="navbar-heading text-muted">Les Emprunts</h6>
           {/* Navigation */}
           <Nav className="mb-md-3" navbar>
             <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/overview?ref=adr-admin-sidebar">
-                <i className="ni ni-spaceship" />
-                Getting started
+              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/colors?ref=adr-admin-sidebar">
+                <i className="ni ni-bullet-list-67" />
+                Liste des emprunts
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/colors?ref=adr-admin-sidebar">
-                <i className="ni ni-palette" />
-                Foundation
+              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/overview?ref=adr-admin-sidebar">
+                <i className="ni ni-fat-add" />
+                Ajout d'un Nouveau emprunt
               </NavLink>
             </NavItem>
             <NavItem>
               <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/alerts?ref=adr-admin-sidebar">
-                <i className="ni ni-ui-04" />
-                Components
-              </NavLink>
-            </NavItem>
-          </Nav>
-          <Nav className="mb-md-3" navbar>
-            <NavItem className="active-pro active">
-              <NavLink href="https://www.creative-tim.com/product/argon-dashboard-pro-react?ref=adr-admin-sidebar">
-                <i className="ni ni-spaceship" />
-                Upgrade to PRO
+                <i className="ni ni-archive-2" />
+                Archive des emprunts
               </NavLink>
             </NavItem>
           </Nav>

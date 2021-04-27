@@ -12,10 +12,10 @@ class Emprunter extends Model
 
     public function ouvrage()
     {
-        return $this->hasOne('App\Ouvrage');
+        return $this->belongsTo('App\Ouvrage');
     }
     public function user()
     {
-        return $this->hasOne('App\User');
+        return $this->belongsTo('App\User');
     }
 }
