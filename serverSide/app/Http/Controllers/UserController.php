@@ -6,10 +6,39 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 use App\User;
 
 class UserController extends Controller
 {
+    public function displayImage($filename)
+    {
+        $path = public_path('images/' . $filename);
+
+        if (!File::exists($path)) {
+            abort(404);
+        }
+
+        $file = File::get($path);
+
+        $type = File::mimeType($path);
+
+        $response = Response::make($file, 200);
+
+        $response->header("Content-Type", $type);
+
+        return $response;
+    }
+
+    public function get_intern_user(){
+        return User::where('type','=','1')->get();
+    }
+
+    public function get_extern_user(){
+        return User::where('type','=','2')->get();
+    }
     public function logout(Request $request) {
         $accessToken = $request->user()->token();
         DB::table('oauth_refresh_tokens')
@@ -46,15 +75,16 @@ class UserController extends Controller
 
     // For internal User
     public function store(Request $request){
+
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
-            'photo' => ['required', 'string'],
+            //'photo' => 'required',
             'cin' => "required|digits:8|unique:users",
             'numCarte' => "required|digits:8|unique:users",
             'numInscription' => "required|string|unique:users",
-            'DateNaissance' => "required|date",
+            'DateNaissance' => "required|date_format:Y-m-d",
             'telephone' => "required|digits:8",
             'adresse' => 'required|string',
             'appartement' => 'required|string',
@@ -62,18 +92,28 @@ class UserController extends Controller
             'codePostal' => 'required|digits:4',
             'niveau' => 'required|string',
             'classe' => 'required|string',
-            'annee_universiatire' => 'required|string',
             'type' => ['required'],
         ]);
+
         if ($validator->fails())
         {
-            return response(['errors'=>$validator->errors()->all()], 422);
+            return response(["test"=> false , "errors"=>$validator->errors()->all()], 200);
         }
+        if($request->json()->get('photo'))
+        {
+           $image = $request->json()->get('photo');
+           $name = time().'.'. explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
+           Image::make($request->json()->get('photo'))->save(public_path('images/').$name);
+        }
+        else{
+            $name="avatar.png";
+        }
+
         $user = User::create([
             'name' => $request->json()->get('name'),
             'email' => $request->json()->get('email'),
             'password' => Hash::make($request->json()->get('password')),
-            'photo' => $request->json()->get('photo'),
+            'photo' => $name,
             'cin' => $request->json()->get('cin'),
             'numCarte' => $request->json()->get('numCarte'),
             'numInscription' => $request->json()->get('numInscription'),
@@ -85,10 +125,10 @@ class UserController extends Controller
             'codePostal' => $request->json()->get('codePostal'),
             'niveau' => $request->json()->get('niveau'),
             'classe' => $request->json()->get('classe'),
-            'annee_universiatire' => $request->json()->get('annee_universiatire'),
             'type' => $request->json()->get('type')
         ]);
         return response()->json([
+            'test'=> true ,
             'msg' => 'User successfully created',
             'User' => $user
         ], 200);
@@ -100,10 +140,7 @@ class UserController extends Controller
             $validator = Validator::make($request->json()->all(), [
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
-                'password' => ['required', 'string', 'min:8'],
-                'photo' => ['required', 'string'],
                 'cin' => "required|digits:8|unique:users,cin,".$user->id,
-                'numCarte' => "required|digits:8|unique:users,numCarte,".$user->id,
                 'numInscription' => "required|string|unique:users,numInscription,".$user->id,
                 'DateNaissance' => "required|date",
                 'telephone' => "required|digits:8",
@@ -113,21 +150,31 @@ class UserController extends Controller
                 'codePostal' => 'required|digits:4',
                 'niveau' => 'required|string',
                 'classe' => 'required|string',
-                'annee_universiatire' => 'required|string',
-                'type' => ['required']
             ]);
 
             if ($validator->fails()) {
-                return response()->json($validator->errors(), 400);
+                return response(["test"=> false , "errors"=>$validator->errors()->all()], 200);
+            }
+            if($request->json()->get('photo'))
+            {
+                $image = $request->json()->get('photo');
+                $name = time().'.'. explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
+                Image::make($request->json()->get('photo'))->save(public_path('images/').$name);
+                if($user->photo != "avatar.png"){
+                    if(File::exists(public_path('images/'.$user->photo))){
+                        File::delete(public_path('images/'.$user->photo));
+                    }
+                }
+            }
+            else{
+                $name=$user->photo;
             }
 
             $user->update([
                 'name' => $request->json()->get('name'),
                 'email' => $request->json()->get('email'),
-                'password' => Hash::make($request->json()->get('password')),
-                'photo' => $request->json()->get('photo'),
+                'photo' => $name,
                 'cin' => $request->json()->get('cin'),
-                'numCarte' => $request->json()->get('numCarte'),
                 'numInscription' => $request->json()->get('numInscription'),
                 'DateNaissance' => $request->json()->get('DateNaissance'),
                 'telephone' => $request->json()->get('telephone'),
@@ -137,10 +184,9 @@ class UserController extends Controller
                 'codePostal' => $request->json()->get('codePostal'),
                 'niveau' => $request->json()->get('niveau'),
                 'classe' => $request->json()->get('classe'),
-                'annee_universiatire' => $request->json()->get('annee_universiatire'),
-                'type' => $request->json()->get('type')
             ]);
             return response()->json([
+                'test'=> true ,
                 'msg' => 'User successfully updated',
                 'user' => $user
             ], 200);
@@ -151,9 +197,24 @@ class UserController extends Controller
     function delete($id){
         $user = User::find($id);
         if (isset($user)) {
+            if($user->photo != "avatar.png"){
+                if(File::exists(public_path('images/'.$user->photo))){
+                    File::delete(public_path('images/'.$user->photo));
+                }
+            }
             $user->delete();
             return response()->json([ 'msg' => "User successfully deleted"], 200);
         }
         else return response()->json([ 'msg' => "User not found"], 200);
+    }
+    function search(Request $request){
+        $s = $request->json()->get('search');
+        return User::where('name', 'LIKE', "%$s%")
+        ->orWhere('email', 'LIKE', "%$s%")
+        ->orWhere('cin', 'LIKE', "%$s%")
+        ->orWhere('numCarte', 'LIKE', "%$s%")
+        ->orWhere('numInscription', 'LIKE', "%$s%")
+        ->orWhere('niveau', 'LIKE', "%$s%")
+        ->orWhere('classe', 'LIKE', "%$s%")->get();
     }
 }

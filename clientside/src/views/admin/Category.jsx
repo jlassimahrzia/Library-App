@@ -42,9 +42,8 @@ function Category(){
     }, [categoryUpdate , updateModal , categories , addModal , deleteModal 
       , id_delete , search,pageSize , currentPage , pagesCount])
     useEffect(() => {
-      if(categories.length>=2){
-      let pages_number = categories.length / pageSize ;
-      setPagesCount(pages_number);}
+      let pages_number = Math.ceil(categories.length / pageSize) ;
+      setPagesCount(pages_number);
     }, [categories , pagesCount , pageSize])
     // Add Modal
     const toggleAddModal = () => {
@@ -218,7 +217,6 @@ function Category(){
                 {/* Pagination */}
                 <CardFooter className="py-4">
                       <nav aria-label="...">
-                      {categories.length >= 2 ?
                         <Pagination aria-label="Page navigation example">
                         <PaginationItem disabled={currentPage <= 0}>
                           <PaginationLink
@@ -239,8 +237,7 @@ function Category(){
                             next
                           />
                         </PaginationItem>
-                        </Pagination> : null
-                      }
+                        </Pagination>
                   </nav>
                 </CardFooter>
                 </Card>

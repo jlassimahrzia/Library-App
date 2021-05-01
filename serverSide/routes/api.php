@@ -7,6 +7,12 @@ use Laravel\Passport\Http\Controllers\AccessTokenController;
 Route::post('login',[AccessTokenController::class , 'issueToken'])
     ->middleware(['api-login','throttle']);
 Route::post('/register','UserController@register');
+// Display User Image
+Route::get('images/{filename}', 'UserController@displayImage');
+// Display Ouvrage Image
+Route::get('photos_couverture/{filename}', 'OuvrageController@displayImage');
+// Display pdf file
+Route::get('files/{filename}', 'OuvrageController@displayPDF');
 Route::middleware(['auth:api'])->group(function () {
     /*
     * Users
@@ -16,6 +22,9 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/store_user', 'UserController@store');
     Route::delete('/delete_user/{id}', 'UserController@delete');
     Route::put('/update_user/{id}', 'UserController@update');
+    Route::get('/intern_users', 'UserController@get_intern_user');
+    Route::get('/extern_users', 'UserController@get_extern_user');
+    Route::post('/search_user', 'UserController@search');
     /*
     * Categories
     */
@@ -34,4 +43,6 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/ouvrage/{id}', 'OuvrageController@get_ouvrage_by_id');
     Route::put('/update_ouvrage/{id}', 'OuvrageController@update');
     Route::delete('/delete_ouvrage/{id}', 'OuvrageController@delete');
+    Route::post('/upload_pdf', 'OuvrageController@upload_pdf');
+    Route::post('/search_ouvrage', 'OuvrageController@search');
 });

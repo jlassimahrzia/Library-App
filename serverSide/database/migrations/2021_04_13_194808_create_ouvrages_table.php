@@ -27,7 +27,7 @@ class CreateOuvragesTable extends Migration
             $table->integer('nbrExemplaire');
             $table->integer('nbrEmprunter');
             $table->enum('type', ['1','2','3']); // 1: papier 2: pdf 3: papier et pdf
-            $table->string('pdfVersion');
+            $table->string('pdfVersion')->nullable();
             $table->unsignedBigInteger('categorie_id');
             $table->foreign('categorie_id')->references('id')->on('categories')->onDelete('cascade');
             $table->timestamps();

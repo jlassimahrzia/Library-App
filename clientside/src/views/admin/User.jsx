@@ -1,7 +1,6 @@
-import { Fragment , useState } from 'react'
+import { Fragment , useState , useEffect } from 'react'
 import PageHeader from "components/Headers/PageHeader.jsx";
 import {
-    Card, CardHeader, CardFooter,
     DropdownMenu,DropdownItem, UncontrolledDropdown, DropdownToggle,
     Pagination,PaginationItem,PaginationLink,
     Table,Container,Modal,
@@ -9,32 +8,208 @@ import {
     Button,
     FormGroup,InputGroup,InputGroupAddon,InputGroupText,Form,Input
 } from "reactstrap";
+import { useFormik } from 'formik'
+import UserService from 'services/UserService'
+import * as Yup from 'yup'
+import { Toaster } from 'react-hot-toast';
 function User(){
-    const [state, setState] = useState({
-        addModal: false,
-        updateModal: false,
-        deleteModal: false,
-        EmpruntsModal: false,
-    });
+    const [addModal , setAddModal] = useState(false)
+    const [updateModal , setUpdateModal] = useState(false)
+    const [deleteModal , setDeleteModal] = useState(false)
+    const [userUpdate, setUserUpdate] = useState(null)
+    const [id_delete , setDeleteId] = useState(null)
+    const [photo , setPhoto] = useState('')
+    const [FileError , setFileError] = useState(null)
+    // tabs
+    const [isActive, setActive] = useState(false)
+    const [internUsers, setInternUsers] = useState([])
+    const [externUsers, setExternUsers] = useState([])
+    // Pagination intern users 
+    const [pageSize] = useState(2)
+    const [currentPage,setCurrentPage] = useState(0)
+    const [pagesCount,setPagesCount] = useState(0)
+    // Pagination extern users 
+    const [pageSize1] = useState(2)
+    const [currentPage1,setCurrentPage1] = useState(0)
+    const [pagesCount1,setPagesCount1] = useState(0)
+    // Search
+    const [search, setSearch] = useState("");
+    // load list of categories
+    const retrieveInternUsers = async () => {
+        const data = await UserService.getInternUser();
+        setInternUsers([...data])
+    }
+    const retrieveExternUsers = async () => {
+        const tab = await UserService.getExternUser();
+        setExternUsers([...tab])
+    }
+    // Did Mount
+    useEffect(() => {
+        retrieveInternUsers();
+        retrieveExternUsers();
+    }, [])
+    // Tabs
+    const toggleClass = () => {
+        setActive(!isActive);
+    };
+    // DidUpdate
+    useEffect(() => {
+
+    }, [addModal , updateModal , deleteModal , userUpdate , id_delete , photo,FileError,
+        internUsers,externUsers,isActive,pageSize , currentPage ,
+    photo, pagesCount,search]);
+    // Pagination
+    const handleClick = (e, index) => {
+        e.preventDefault();
+        setCurrentPage(index);
+    }
+    const handleClick1 = (e, index) => {
+        e.preventDefault();
+        setCurrentPage1(index);
+    }
+    useEffect(() => {
+      let pages_number = Math.ceil(internUsers.length / pageSize) ;
+      setPagesCount(pages_number);
+      let pages_number1 = Math.ceil(externUsers.length / pageSize1) ;
+      setPagesCount1(pages_number1);
+    }, [internUsers , pagesCount , pageSize, externUsers , pagesCount1 , pageSize1])
+    // Add Modal
     const toggleAddModal = () => {
-        setState({ addModal: ! state.addModal });
+        setAddModal(!addModal);
     };
-    const toggleUpdateModal = () => {
-        setState({ updateModal: ! state.updateModal });
+    // Update Modal
+    const OpenUpdateModal = (item) => {
+        setUpdateModal(true)
+        setUserUpdate(item)
     };
-    const toggleDeleteModal = () => {
-        setState({ deleteModal: ! state.deleteModal });
+    const CloseUpdateModal = () => {
+        setUpdateModal(false)
     };
-    const toggleEmpruntsModal = () => {
-        setState({ EmpruntsModal: ! state.EmpruntsModal });
+    // Delete Modal
+    const OpenDeleteModal = (id) => {
+        setDeleteId(id)
+        setDeleteModal(true)
     };
+    const CloseDeleteModal = () => {
+        setDeleteModal(false)
+    };
+    const delete_user = () => {
+        UserService.delete(id_delete);
+        CloseDeleteModal();
+        retrieveInternUsers();
+      };
+    // Random Number of Cart Numbe
+    const generateNumber = () => {
+        const min = 10000000 ;
+        const max = 99999999;
+        return Math.floor(Math.random()*(max-min+1)+min)
+    }
+    // Add Form 
+    const createImage = (photo) => {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+            setPhoto(e.target.result)
+        };
+        reader.readAsDataURL(photo);
+    }
+    const handleImage = (e) => {
+        setFileError(null);
+        let files = e.target.files || e.dataTransfer.files;
+        console.log(files[0])
+        if (!files.length){
+            return;
+        }
+        else if ((files[0].type !== "image/jpeg") && (files[0].type !== "image/png")){
+                console.log(files[0].type)
+                setFileError('Que les images .png , .jpeg ou .jpg sont acceptées');
+                console.log(FileError)
+                return;
+        }
+        else if (files[0].size > 20e6) {
+                setFileError('Image de très grande taille');
+                console.log("handleImage error 2")
+                return;
+        }
+        console.log("ok")
+        createImage(files[0]);
+    }
+    const validationSchema = Yup.object({
+        cin: Yup.number().required("Il faut remplir le champ CIN").test('len', 'Le num de CIN doit étre de 8 chiffres', (val) =>  { if(val) return val.toString().length === 8; }),
+        numInscription: Yup.string().required('Il faut remplir le champ num d\'nscription'),
+        DateNaissance: Yup.date().required('Il faut remplir le champ Date de Naissance'),
+        telephone: Yup.number().required("Il faut remplir le champ num de télèphone").test('len', 'Le num de télèphone doit étre de 8 chiffres', (val) => { if(val) return val.toString().length === 8; } ),
+        adresse: Yup.string().required('Il faut remplir le champ adresse'),
+        appartement: Yup.string().required('Il faut remplir le champ appartement'),
+        ville: Yup.string().required('Il faut remplir le champ ville'),
+        codePostal: Yup.number().required("Il faut remplir le champ Code Postal").test('len', 'Le num de CIN doit étre de 4 chiffres',(val) => { if(val) return val.toString().length === 4; }  ),
+        niveau: Yup.string().required('Il faut selectionner le niveau'),
+        classe: Yup.string().required('Il faut selectionner la classe'),    
+    })
+    // Add Form 
+    const AddForm = useFormik({
+        initialValues : {
+            name: '',
+            email: '',
+            cin:'',
+            numCarte: generateNumber(),
+            numInscription:'',
+            DateNaissance:'',
+            telephone:'',
+            adresse:'',
+            appartement:'',
+            ville:'',
+            codePostal:'',
+            niveau:'',
+            classe:''
+        },
+        onSubmit: (values,submitProps)  => {
+            UserService.add(values,photo,submitProps)
+            toggleAddModal()
+            retrieveInternUsers();
+        },
+        validationSchema
+    })
+    // Update Form 
+    const UpdateForm = useFormik({
+        initialValues : {
+            name: userUpdate ? userUpdate.name : "",
+            email: userUpdate ? userUpdate.email : "",
+            cin: userUpdate ? userUpdate.cin : "",
+            numCarte: userUpdate ? userUpdate.numCarte : "",
+            numInscription: userUpdate ? userUpdate.numInscription : "",
+            DateNaissance: userUpdate ? userUpdate.DateNaissance : "",
+            telephone: userUpdate ? userUpdate.telephone : "",
+            adresse: userUpdate ? userUpdate.adresse : "",
+            appartement: userUpdate ? userUpdate.appartement : "",
+            ville: userUpdate ? userUpdate.ville : "",
+            codePostal: userUpdate ? userUpdate.codePostal : "",
+            niveau: userUpdate ? userUpdate.niveau : "",
+            classe: userUpdate ? userUpdate.classe : ""
+        },
+        onSubmit: (values,submitProps)  => {
+            UserService.update(userUpdate.id ,values,photo,submitProps)
+            CloseUpdateModal()
+            retrieveInternUsers();
+        },
+        validationSchema,
+        enableReinitialize:true
+    })
+    // Search
+    const handleInput = async(value) =>{
+        setSearch(value)
+        const data = await UserService.search({"search" : search });
+        setInternUsers([...data])
+        if(value === "")
+            retrieveInternUsers();
+    }
     return (
         <Fragment>
             <PageHeader />
-            <Container className="mt--7" fluid>  
+            <Toaster />
+            <Container className="mt--7" fluid>
             <div>
                 <Row>
-                    <Col xs="8">
+                    <Col xs="4">
                         <Button className="btn-icon btn-3" color="primary" type="button"
                             onClick={toggleAddModal}>
                                 <span className="btn-inner--icon">
@@ -43,7 +218,7 @@ function User(){
                                 <span className="btn-inner--text">Ajouter</span>
                         </Button>
                     </Col>
-                    <Col className="text-right" xs="4">
+                    <Col className="text-right" xs="8">
                         <FormGroup>
                         <InputGroup className="input-group-alternative mb-4">
                         <InputGroupAddon addonType="prepend">
@@ -53,8 +228,10 @@ function User(){
                         </InputGroupAddon>
                         <Input
                             className="form-control-alternative"
-                            placeholder="Chercher"
+                            placeholder="Chercher par Nom ou email ou CIN ou Num de carte ou Num d'inscription ou nivieau ou classe ...."
                             type="text"
+                            value={search}
+                            onChange={e => handleInput(e.target.value)}
                         />
                         </InputGroup>
                         </FormGroup> 
@@ -63,253 +240,217 @@ function User(){
             </div>
             <Row>
             <div className="col">    
-                <Card className="shadow">
-                    {/* Header */}
-                    <CardHeader className="border-0">
-                        <Row className="align-items-center">
-                            <Col xs="8">
-                                <h3 className="mb-0">Liste des emprunteur</h3>
-                            </Col>
-                        </Row>               
-                    </CardHeader>
-                    {/* List */}
-                    <Table className="align-items-center table-flush" responsive>
-                        <thead className="thead-light">
-                        <tr>
-                            <th scope="col">Photo</th>
-                            <th scope="col">Nom et Prenom </th>
-                            <th scope="col">Email</th>
-                            <th scope="col">CIN</th>  
-                            <th scope="col">Num Carte</th>
-                            <th scope="col">Num Inscription</th>
-                            <th scope="col">Date de Naissance</th>
-                            <th scope="col">Telephone</th>
-                            <th scope="col">Adresse</th>
-                            <th scope="col">Appartement</th>
-                            <th scope="col">Ville</th>
-                            <th scope="col">Code Postal</th>
-                            <th scope="col">Niveau</th>
-                            <th scope="col">Classe</th>
-                            <th scope="col" />
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>
-                                <img style={{width:"100%"}}
-                                    alt="..."
-                                    src={require("assets/img/theme/profile-cover.jpg").default}
+                    <div className="nav-wrapper">
+                        <ul className="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
+                            <li className="nav-item" onClick={toggleClass} >
+                                <a className={!isActive ? "nav-link mb-sm-3 mb-md-0 active": "nav-link mb-sm-3 mb-md-0"} id="intern-users-tab" data-toggle="tab" 
+                                href="#intern-users-1"
+                                role="tab" aria-controls="intern-users-1" aria-selected="true">
+                                    <i className="ni ni-bold-down mr-2"></i>Emprunteurs</a>
+                            </li>
+                            <li className="nav-item" onClick={toggleClass} >
+                                <a className={isActive ? "nav-link mb-sm-3 mb-md-0 active": "nav-link mb-sm-3 mb-md-0"} id="extern-users-tab" data-toggle="tab"
+                                href="#extern-users-1" 
+                                role="tab" aria-controls="extern-users-1" aria-selected="false">
+                                    <i className="ni ni-bold-down mr-2"></i>Utilisateurs Externes</a>
+                            </li>
+
+                        </ul>
+                    </div> 
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div className="tab-content" id="myTabContent">
+                            <div className={!isActive ? "tab-pane fade show active": "tab-pane fade "}  id="intern-users-1" role="tabpanel"aria-labelledby="intern-users-tab">
+                            <div className="card-header">
+                                <h3 className="mb-0">Liste Des Emprunteurs</h3>
+                            </div>
+                            <div className="Card-body">
+                            <Table className="align-items-center table-flush" responsive>
+                                <thead className="thead-light">
+                                <tr>
+                                    <th scope="col">Photo</th>
+                                    <th scope="col">Nom et Prenom </th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">CIN</th>  
+                                    <th scope="col">Num Carte</th>
+                                    <th scope="col">Num Inscription</th>
+                                    <th scope="col">Date de Naissance</th>
+                                    <th scope="col">Telephone</th>
+                                    <th scope="col">Adresse</th>
+                                    <th scope="col">Appartement</th>
+                                    <th scope="col">Ville</th>
+                                    <th scope="col">Code Postal</th>
+                                    <th scope="col">Niveau</th>
+                                    <th scope="col">Classe</th>
+                                    <th scope="col" />
+                                </tr>
+                                </thead>
+                                <tbody>
+                                { internUsers.slice(currentPage * pageSize,(currentPage + 1) * pageSize).map((item,index) => (
+                                <tr  key={index}>
+                                    <td>
+                                        <img style={{width:"100%"}}
+                                            alt="..."
+                                            src={`http://localhost:8000/api/images/${item.photo}`}
+                                        />
+                                    </td>
+                                    <td>
+                                        {item.name}
+                                    </td>
+                                    <td>
+                                        {item.email}
+                                    </td>
+                                    <td>
+                                        {item.cin}
+                                    </td>  
+                                    <td>
+                                        {item.numCarte}
+                                    </td>
+                                    <td>
+                                        {item.numInscription}
+                                    </td>
+                                    <td>
+                                        {item.DateNaissance}
+                                    </td>
+                                    <td>
+                                        {item.telephone} 
+                                    </td> 
+                                    <td>
+                                        {item.adresse}
+                                    </td> 
+                                    <td>
+                                        {item.appartement}
+                                    </td> 
+                                    <td>
+                                        {item.ville}
+                                    </td>    
+                                    <td>
+                                        {item.codePostal}
+                                    </td> 
+                                    <td>
+                                        {item.niveau}
+                                    </td>  
+                                    <td>
+                                        {item.classe}
+                                    </td>        
+                                    <td className="text-right">
+                                    <UncontrolledDropdown>
+                                        <DropdownToggle
+                                        className="btn-icon-only text-light"
+                                        role="button"
+                                        size="sm"
+                                        color=""
+                                        onClick={(e) => e.preventDefault()}
+                                        >
+                                        <i className="fas fa-ellipsis-v" />
+                                        </DropdownToggle>
+                                        <DropdownMenu className="dropdown-menu-arrow" right>
+                                        <DropdownItem
+                                            onClick={() => OpenUpdateModal(item)}
+                                        >
+                                            Modifier
+                                        </DropdownItem>
+                                        <DropdownItem
+                                        onClick={() => OpenDeleteModal(item.id)}
+                                        >
+                                            Supprimer
+                                        </DropdownItem>
+                                        </DropdownMenu>
+                                    </UncontrolledDropdown>
+                                    </td>
+                                </tr>
+                                ))}
+                                </tbody>
+                            </Table>
+                            </div>
+                            {/* Pagination */}
+                            <div className="Card-footer">
+                            <nav aria-label="...">
+                                <br/>
+                                <Pagination aria-label="Page navigation example">
+                                <PaginationItem disabled={currentPage <= 0}>
+                                <PaginationLink
+                                    onClick={e => handleClick(e, currentPage - 1)}
+                                    previous
                                 />
-                            </td>
-                            <td>
-                                Jlassi Mahrzia
-                            </td>
-                            <td>
-                                mahrzia.jlassi@ensi-uma.tn
-                            </td>
-                            <td>
-                                11403758
-                            </td>  
-                            <td>
-                                123-456-789
-                            </td>
-                            <td>
-                                II2564897
-                            </td>
-                            <td>
-                                07-08-1997
-                            </td>
-                            <td>
-                                25324210 
-                            </td> 
-                            <td>
-                                Bizerte
-                            </td> 
-                            <td>
-                                app 13
-                            </td> 
-                            <td>
-                                Bizerte
-                            </td>    
-                            <td>
-                                7024
-                            </td> 
-                            <td>
-                                II2
-                            </td>  
-                            <td>
-                               II2-E
-                            </td>        
-                            <td className="text-right">
-                            <UncontrolledDropdown>
-                                <DropdownToggle
-                                className="btn-icon-only text-light"
-                                href="#pablo"
-                                role="button"
-                                size="sm"
-                                color=""
-                                onClick={(e) => e.preventDefault()}
-                                >
-                                <i className="fas fa-ellipsis-v" />
-                                </DropdownToggle>
-                                <DropdownMenu className="dropdown-menu-arrow" right>
-                                <DropdownItem
-                                    onClick={toggleEmpruntsModal}
-                                >
-                                    Liste des emprunts
-                                </DropdownItem>
-                                <DropdownItem
-                                    onClick={toggleUpdateModal}
-                                >
-                                    Modifier
-                                </DropdownItem>
-                                <DropdownItem
-                                    onClick={toggleDeleteModal}
-                                >
-                                    Supprimer
-                                </DropdownItem>
-                                </DropdownMenu>
-                            </UncontrolledDropdown>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img style={{width:"100%"}}
-                                    alt="..."
-                                    src={require("assets/img/theme/profile-cover.jpg").default}
+                                </PaginationItem>
+                                {[...Array(pagesCount)].map((page, i) => 
+                                <PaginationItem active={i === currentPage} key={i}>
+                                    <PaginationLink onClick={e => handleClick(e, i)}>
+                                    {i + 1}
+                                    </PaginationLink>
+                                </PaginationItem>
+                                )}
+                                <PaginationItem disabled={currentPage >= pagesCount - 1}>
+                                <PaginationLink
+                                    onClick={e => handleClick(e, currentPage + 1)}
+                                    next
                                 />
-                            </td>
-                            <td>
-                                Jlassi Mahrzia
-                            </td>
-                            <td>
-                                mahrzia.jlassi@ensi-uma.tn
-                            </td>
-                            <td>
-                                11403758
-                            </td>  
-                            <td>
-                                123-456-789
-                            </td>
-                            <td>
-                                II2564897
-                            </td>
-                            <td>
-                                07-08-1997
-                            </td>
-                            <td>
-                                25324210 
-                            </td> 
-                            <td>
-                                Bizerte
-                            </td> 
-                            <td>
-                                app 13
-                            </td> 
-                            <td>
-                                Bizerte
-                            </td>    
-                            <td>
-                                7024
-                            </td> 
-                            <td>
-                                II2
-                            </td>  
-                            <td>
-                               II2-E
-                            </td>        
-                            <td className="text-right">
-                            <UncontrolledDropdown>
-                                <DropdownToggle
-                                className="btn-icon-only text-light"
-                                href="#pablo"
-                                role="button"
-                                size="sm"
-                                color=""
-                                onClick={(e) => e.preventDefault()}
-                                >
-                                <i className="fas fa-ellipsis-v" />
-                                </DropdownToggle>
-                                <DropdownMenu className="dropdown-menu-arrow" right>
-                                <DropdownItem
-                                    onClick={toggleEmpruntsModal}
-                                >
-                                    Liste des emprunts
-                                </DropdownItem>
-                                <DropdownItem
-                                    onClick={toggleUpdateModal}
-                                >
-                                    Modifier
-                                </DropdownItem>
-                                <DropdownItem
-                                    onClick={toggleDeleteModal}
-                                >
-                                    Supprimer
-                                </DropdownItem>
-                                </DropdownMenu>
-                            </UncontrolledDropdown>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </Table>
-                    {/* Pagination */}
-                    <CardFooter className="py-4">
-                        <nav aria-label="...">
-                        <Pagination
-                            className="pagination justify-content-end mb-0"
-                            listClassName="justify-content-end mb-0"
-                        >
-                            <PaginationItem className="disabled">
-                            <PaginationLink
-                                href="#pablo"
-                                onClick={(e) => e.preventDefault()}
-                                tabIndex="-1"
-                            >
-                                <i className="fas fa-angle-left" />
-                                <span className="sr-only">Previous</span>
-                            </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem className="active">
-                            <PaginationLink
-                                href="#pablo"
-                                onClick={(e) => e.preventDefault()}
-                            >
-                                1
-                            </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                            <PaginationLink
-                                href="#pablo"
-                                onClick={(e) => e.preventDefault()}
-                            >
-                                2 <span className="sr-only">(current)</span>
-                            </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                            <PaginationLink
-                                href="#pablo"
-                                onClick={(e) => e.preventDefault()}
-                            >
-                                3
-                            </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                            <PaginationLink
-                                href="#pablo"
-                                onClick={(e) => e.preventDefault()}
-                            >
-                                <i className="fas fa-angle-right" />
-                                <span className="sr-only">Next</span>
-                            </PaginationLink>
-                            </PaginationItem>
-                        </Pagination>
-                        </nav>
-                    </CardFooter>
-                </Card>
+                                </PaginationItem>
+                                </Pagination> 
+                            </nav> 
+                            </div>
+                            </div>
+                            <div className={isActive ? "tab-pane fade show active": "tab-pane fade "}  id="extern-users-1" role="tabpanel" aria-labelledby="extern-users-tab">
+                            <div className="card-header">
+                                <h3 className="mb-0">Liste Des Utlisateurs Externes</h3>
+                            </div>
+                            <div className="Card-body">
+                            <Table className="align-items-center table-flush" responsive>
+                                <thead className="thead-light">
+                                <tr>
+                                    <th scope="col">Nom et Prenom </th>
+                                    <th scope="col">Email</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                { externUsers.slice(currentPage1 * pageSize1,(currentPage1 + 1) * pageSize1).map((item,index) => (
+                                <tr  key={index}>
+                                    <td>
+                                        {item.name}
+                                    </td>
+                                    <td>
+                                        {item.email}
+                                    </td>
+                                </tr>
+                                ))}
+                                </tbody>
+                            </Table>
+                            </div>
+                            <div className="Card-footer">
+                            <nav aria-label="...">
+                                <br/>
+                                <Pagination aria-label="Page navigation example ">
+                                <PaginationItem disabled={currentPage1 <= 0}>
+                                <PaginationLink
+                                    onClick={e => handleClick1(e, currentPage1 - 1)}
+                                    previous
+                                />
+                                </PaginationItem>
+                                {[...Array(pagesCount1)].map((page, i) => 
+                                <PaginationItem active={i === currentPage1} key={i}>
+                                    <PaginationLink onClick={e => handleClick1(e, i)}>
+                                    {i + 1}
+                                    </PaginationLink>
+                                </PaginationItem>
+                                )}
+                                <PaginationItem disabled={currentPage1 >= pagesCount1 - 1}>
+                                <PaginationLink
+                                    onClick={e => handleClick1(e, currentPage1 + 1)}
+                                    next
+                                />
+                                </PaginationItem>
+                                </Pagination>
+                            </nav> 
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             {/* Add user */}
             <Modal className="modal-dialog-centered"
-            size="lg" isOpen={state.addModal} toggle={toggleAddModal} >
+            size="lg" isOpen={addModal} toggle={toggleAddModal} >
               <div className="modal-header">
                 <h4 className="modal-title" id="modal-title-default">
                   Ajouter un nouveau emprunteur
@@ -324,8 +465,8 @@ function User(){
                   <span aria-hidden={true}>×</span>
                 </button>
               </div>
+              <Form onSubmit={AddForm.handleSubmit}>
               <div className="modal-body">
-                <Form>
                     <h6 className="heading-small text-muted mb-4">
                         Informations Générales
                     </h6>
@@ -336,9 +477,14 @@ function User(){
                             <label className="form-control-label">Nom et Prenom</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="Nom et Prenom"
-                                type="text"
+                                placeholder="Nom et Prenom" type="text" 
+                                name="name" id="name"
+                                {...AddForm.getFieldProps('name')}
                             />
+                            {AddForm.errors.name && AddForm.touched.name ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.name }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                         <Col md="6">
@@ -346,9 +492,14 @@ function User(){
                             <label className="form-control-label">Email</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="Email"
-                                type="email"
+                                placeholder="Email" type="email"
+                                name="email" id="email"
+                                {...AddForm.getFieldProps('email')}
                             /> 
+                            {AddForm.errors.email && AddForm.touched.email ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.email }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                     </Row>
@@ -359,19 +510,29 @@ function User(){
                             <label className="form-control-label">Date de Naissance</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="Date de Naissance"
-                                type="date"
+                                placeholder="Date de Naissance" type="date"
+                                name="DateNaissance" id="DateNaissance"
+                                {...AddForm.getFieldProps('DateNaissance')}
                             />
+                            {AddForm.errors.DateNaissance && AddForm.touched.DateNaissance ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.DateNaissance }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                         <Col md="6">
                         <FormGroup>
-                            <label className="form-control-label">Telephone</label>
+                            <label className="form-control-label">Télèphone</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="Telephone"
-                                type="text"
+                                placeholder="Telephone" type="number"
+                                name="telephone" id="telephone"
+                                {...AddForm.getFieldProps('telephone')}
                             /> 
+                            {AddForm.errors.telephone && AddForm.touched.telephone ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.telephone }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                     </Row>
@@ -383,7 +544,13 @@ function User(){
                             <Input
                                 className="form-control-alternative"
                                 type="file"
+                                name="photo" id="photo"
+                                onChange={ (e) => handleImage(e)}
                             />
+                            { FileError != null ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> { FileError }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                         <Col md="6">
@@ -391,9 +558,14 @@ function User(){
                             <label className="form-control-label">CIN</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="CIN"
-                                type="text"
+                                placeholder="CIN" type="number"
+                                name="cin" id="cin"
+                                {...AddForm.getFieldProps('cin')}
                             />
+                            {AddForm.errors.cin && AddForm.touched.cin ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.cin }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                     </Row>
@@ -408,9 +580,14 @@ function User(){
                             <label className="form-control-label">NUM Inscription</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="NUM Inscription"
-                                type="text"
+                                placeholder="NUM Inscription" type="text"
+                                name="numInscription" id="numInscription"
+                                {...AddForm.getFieldProps('numInscription')}
                             />
+                            {AddForm.errors.numInscription && AddForm.touched.numInscription ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.numInscription }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                         <Col md="6">
@@ -418,8 +595,9 @@ function User(){
                             <label className="form-control-label">NUM Carte</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="NUM Carte"
-                                type="text"
+                                placeholder="NUM Carte" type="number"
+                                name="numCarte" id="numCarte"
+                                {...AddForm.getFieldProps('numCarte')}
                             /> 
                         </FormGroup>
                         </Col>
@@ -433,17 +611,23 @@ function User(){
                         <Col md="6">
                         <FormGroup>
                             <label className="form-control-label">Niveau</label>
-                            <Input type="select" name="select" id="exampleSelect">
+                            <Input type="select" name="niveau" id="niveau" {...AddForm.getFieldProps('niveau')}>
+                                <option hidden>Selectionner ...</option> 
                                 <option value="II1">II1</option>
                                 <option value="II2">II2</option>
                                 <option value="II3">II3</option>
                             </Input>
+                            {AddForm.errors.niveau && AddForm.touched.niveau ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.niveau }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                         <Col md="6">
                         <FormGroup>
                             <label className="form-control-label">Classe</label>
-                            <Input type="select" name="select" id="exampleSelect">
+                            <Input type="select" name="classe" id="classe" {...AddForm.getFieldProps('classe')}>
+                                <option hidden>Selectionner ...</option> 
                                 <option value="A">A</option>
                                 <option value="B">B</option>
                                 <option value="C">C</option>
@@ -451,6 +635,10 @@ function User(){
                                 <option value="E">E</option>
                                 <option value="F">F</option>
                             </Input>
+                            {AddForm.errors.classe && AddForm.touched.classe ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.classe }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                     </Row> 
@@ -465,9 +653,14 @@ function User(){
                             <label className="form-control-label">Adresse</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="Adresse"
-                                type="text"
+                                placeholder="Adresse" type="text"
+                                name="adresse" id="adresse"
+                                {...AddForm.getFieldProps('adresse')}
                             />
+                            {AddForm.errors.adresse && AddForm.touched.adresse ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.adresse }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                         <Col md="6">
@@ -475,9 +668,14 @@ function User(){
                             <label className="form-control-label">Appartement</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="Appartement"
-                                type="text"
+                                placeholder="Appartement" type="text"
+                                name="appartement" id="appartement"
+                                {...AddForm.getFieldProps('appartement')}
                             />
+                            {AddForm.errors.appartement && AddForm.touched.appartement ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.appartement }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                     </Row> 
@@ -488,9 +686,14 @@ function User(){
                             <label className="form-control-label">Ville</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="Ville"
-                                type="text"
+                                placeholder="Ville" type="text"
+                                name="ville" id="ville"
+                                {...AddForm.getFieldProps('ville')}
                             />
+                            {AddForm.errors.ville && AddForm.touched.ville ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.ville }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                         <Col md="6">
@@ -498,27 +701,31 @@ function User(){
                             <label className="form-control-label">Code Postal</label>
                             <Input
                                 className="form-control-alternative"
-                                placeholder="Code Postal"
-                                type="text"
+                                placeholder="Code Postal" type="number"
+                                name="codePostal" id="codePostal"
+                                {...AddForm.getFieldProps('codePostal')}
                             />
+                            {AddForm.errors.codePostal && AddForm.touched.codePostal ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.codePostal }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                     </Row>   
-                    </div>         
-                </Form>
+                    </div>  
               </div>
               <div className="modal-footer">
-                <Button color="primary" type="button">
+                <Button color="primary" type="submit" >{/*disabled={!(AddForm.dirty && AddForm.isValid)} */}
                   Ajouter
                 </Button>
                 <Button className="ml-auto" color="link" data-dismiss="modal" type="button" onClick={toggleAddModal}  >
                   Annuler
                 </Button>
               </div>
+            </Form>
             </Modal>
-            {/* Update user */}
             <Modal className="modal-dialog-centered"
-            size="lg" isOpen={state.updateModal} toggle={toggleUpdateModal} >
+            size="lg" isOpen={updateModal} toggle={CloseUpdateModal} >
               <div className="modal-header">
                 <h4 className="modal-title" id="modal-title-default">
                   Modifier un emprunteur
@@ -528,120 +735,114 @@ function User(){
                   className="close"
                   data-dismiss="modal"
                   type="button"
-                  onClick={toggleUpdateModal}
+                  onClick={CloseUpdateModal}
                 >
                   <span aria-hidden={true}>×</span>
                 </button>
               </div>
+              <Form onSubmit={UpdateForm.handleSubmit}>
               <div className="modal-body">
-                <Form>
                     <h6 className="heading-small text-muted mb-4">
                         Informations Générales
                     </h6>
                     <div className="pl-lg-4">
                     <Row>
                         <Col md="6">
-                            <FormGroup>
-                            <label
-                                className="form-control-label"
-                                htmlFor="name"
-                            >
-                                Nom et Prenom
-                            </label>
+                        <FormGroup>
+                            <label className="form-control-label">Nom et Prenom</label>
                             <Input
                                 className="form-control-alternative"
-                                id="name"
-                                placeholder="Nom et Prenom"
-                                type="text"
+                                placeholder="Nom et Prenom" type="text" 
+                                name="name" id="name"
+                                {...UpdateForm.getFieldProps('name')}
                             />
-                            </FormGroup>
+                            {UpdateForm.errors.name && UpdateForm.touched.name ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.name }
+                            </span></p> : null}
+                        </FormGroup>
                         </Col>
                         <Col md="6">
                         <FormGroup>
-                            <FormGroup>
-                            <label
-                                className="form-control-label"
-                                htmlFor="email"
-                            >
-                                Email
-                            </label>
+                            <label className="form-control-label">Email</label>
                             <Input
                                 className="form-control-alternative"
-                                id="email"
-                                placeholder="Nom et Prenom"
-                                type="email"
-                            />
-                            </FormGroup>
+                                placeholder="Email" type="email"
+                                name="email" id="email"
+                                {...UpdateForm.getFieldProps('email')}
+                            /> 
+                            {UpdateForm.errors.email && UpdateForm.touched.email ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.email }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                     </Row>
                     <br/>
                     <Row>
                         <Col md="6">
-                            <FormGroup>
-                            <label
-                                className="form-control-label"
-                                htmlFor="dateNaissance"
-                            >
-                                Date de Naissance
-                            </label>
+                        <FormGroup>
+                            <label className="form-control-label">Date de Naissance</label>
                             <Input
                                 className="form-control-alternative"
-                                id="dateNaissance"
-                                placeholder="Date de Naissance"
-                                type="date"
+                                placeholder="Date de Naissance" type="date"
+                                name="DateNaissance" id="DateNaissance"
+                                {...UpdateForm.getFieldProps('DateNaissance')}
                             />
-                            </FormGroup>
+                            {UpdateForm.errors.DateNaissance && UpdateForm.touched.DateNaissance ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.DateNaissance }
+                            </span></p> : null}
+                        </FormGroup>
                         </Col>
                         <Col md="6">
-                            <FormGroup>
-                                <label
-                                    className="form-control-label"
-                                    htmlFor="telephone"
-                                >
-                                    Telephone
-                                </label>
-                                <Input
-                                    className="form-control-alternative"
-                                    id="telephone"
-                                    placeholder="Telephone"
-                                    type="number"
-                                />
-                            </FormGroup>
+                        <FormGroup>
+                            <label className="form-control-label">Télèphone</label>
+                            <Input
+                                className="form-control-alternative"
+                                placeholder="Telephone" type="number"
+                                name="telephone" id="telephone"
+                                {...UpdateForm.getFieldProps('telephone')}
+                            /> 
+                            {UpdateForm.errors.telephone && UpdateForm.touched.telephone ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.telephone }
+                            </span></p> : null}
+                        </FormGroup>
                         </Col>
                     </Row>
                     <br/>
                     <Row>
                         <Col md="6">
-                            <FormGroup>
-                                <label
-                                    className="form-control-label"
-                                    htmlFor="photo"
-                                >
-                                    Photo
-                                </label>
-                                <Input
-                                    className="form-control-alternative"
-                                    id="photo"
-                                    type="file"
-                                />
-                            </FormGroup> 
+                        <FormGroup>
+                            <label className="form-control-label">Photo</label>
+                            <Input
+                                className="form-control-alternative"
+                                type="file"
+                                name="photo" id="photo"
+                                onChange={ (e) => handleImage(e)}
+                            />
+                            {userUpdate !== null ? <a href={`http://localhost:8000/images/${userUpdate.photo}`} target="_blank">{userUpdate.photo}</a> : null}
+                            { FileError != null ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> { FileError }
+                            </span></p> : null}
+                        </FormGroup>
                         </Col>
                         <Col md="6">
-                            <FormGroup>
-                                <label
-                                    className="form-control-label"
-                                    htmlFor="cin"
-                                >
-                                    CIN
-                                </label>
-                                <Input
-                                    className="form-control-alternative"
-                                    id="cin"
-                                    type="number"
-                                    placeholder="CIN"
-                                />
-                            </FormGroup> 
+                        <FormGroup>
+                            <label className="form-control-label">CIN</label>
+                            <Input
+                                className="form-control-alternative"
+                                placeholder="CIN" type="number"
+                                name="cin" id="cin"
+                                {...UpdateForm.getFieldProps('cin')}
+                            />
+                            {UpdateForm.errors.cin && UpdateForm.touched.cin ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.cin }
+                            </span></p> : null}
+                        </FormGroup>
                         </Col>
                     </Row>
                     </div>
@@ -651,36 +852,34 @@ function User(){
                     <div className="pl-lg-4">
                     <Row>
                         <Col md="6">
-                            <FormGroup>
-                                <label
-                                    className="form-control-label"
-                                    htmlFor="numInscription"
-                                >
-                                    NUM Inscription
-                                </label>
-                                <Input
-                                    className="form-control-alternative"
-                                    id="numInscription"
-                                    type="text"
-                                    placeholder="NUM Inscription"
-                                />
-                            </FormGroup>
+                        <FormGroup>
+                            <label className="form-control-label">NUM Inscription</label>
+                            <Input
+                                className="form-control-alternative"
+                                placeholder="NUM Inscription" type="text"
+                                name="numInscription" id="numInscription"
+                                {...UpdateForm.getFieldProps('numInscription')}
+                            />
+                            {UpdateForm.errors.numInscription && UpdateForm.touched.numInscription ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.numInscription }
+                            </span></p> : null}
+                        </FormGroup>
                         </Col>
                         <Col md="6">
-                            <FormGroup>
-                                <label
-                                    className="form-control-label"
-                                    htmlFor="numCarte"
-                                >
-                                    NUM Carte
-                                </label>
-                                <Input
-                                    className="form-control-alternative"
-                                    id="numCarte"
-                                    type="text"
-                                    placeholder="NUM Carte"
-                                />
-                            </FormGroup>
+                        <FormGroup>
+                            <label className="form-control-label">NUM Carte</label>
+                            <Input
+                                className="form-control-alternative"
+                                placeholder="NUM Carte" type="number"
+                                name="numCarte" id="numCarte"
+                                {...UpdateForm.getFieldProps('numCarte')}
+                                disabled
+                            /> 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                 Vous avez pas le droit de modifier la num de carte
+                            </span></p>
+                        </FormGroup>
                         </Col>
                     </Row>
                     </div>
@@ -690,29 +889,25 @@ function User(){
                     <div className="pl-lg-4">
                     <Row>
                         <Col md="6">
-                            <FormGroup>
-                                <label
-                                    className="form-control-label"
-                                    htmlFor="numCarte"
-                                >
-                                    Niveau
-                                </label>
-                                <Input type="select" name="select" id="exampleSelect">
-                                    <option value="II1">II1</option>
-                                    <option value="II2">II2</option>
-                                    <option value="II3">II3</option>
-                                </Input>
-                            </FormGroup>
+                        <FormGroup>
+                            <label className="form-control-label">Niveau</label>
+                            <Input type="select" name="niveau" id="niveau" {...UpdateForm.getFieldProps('niveau')}>
+                                <option hidden>Selectionner ...</option> 
+                                <option value="II1">II1</option>
+                                <option value="II2">II2</option>
+                                <option value="II3">II3</option>
+                            </Input>
+                            {UpdateForm.errors.niveau && UpdateForm.touched.niveau ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.niveau }
+                            </span></p> : null}
+                        </FormGroup>
                         </Col>
                         <Col md="6">
                         <FormGroup>
-                                <label
-                                    className="form-control-label"
-                                    htmlFor="numCarte"
-                                >
-                                    Classe
-                                </label>
-                            <Input type="select" name="select" id="exampleSelect">
+                            <label className="form-control-label">Classe</label>
+                            <Input type="select" name="classe" id="classe" {...UpdateForm.getFieldProps('classe')}>
+                                <option hidden>Selectionner ...</option> 
                                 <option value="A">A</option>
                                 <option value="B">B</option>
                                 <option value="C">C</option>
@@ -720,103 +915,101 @@ function User(){
                                 <option value="E">E</option>
                                 <option value="F">F</option>
                             </Input>
+                            {UpdateForm.errors.classe && UpdateForm.touched.classe ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.classe }
+                            </span></p> : null}
                         </FormGroup>
                         </Col>
                     </Row> 
                     </div>
                     <h6 className="heading-small text-muted mb-4">
-                        Adresse
+                        Adresses
                     </h6>
                     <div className="pl-lg-4">
                     <Row>
-                      <Col md="12">
+                        <Col md="6">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-address"
-                          >
-                            Address
-                          </label>
-                          <Input
-                            className="form-control-alternative"
-                            defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
-                            id="input-address"
-                            placeholder="Home Address"
-                            type="text"
-                          />
+                            <label className="form-control-label">Adresse</label>
+                            <Input
+                                className="form-control-alternative"
+                                placeholder="Adresse" type="text"
+                                name="adresse" id="adresse"
+                                {...UpdateForm.getFieldProps('adresse')}
+                            />
+                            {UpdateForm.errors.adresse && UpdateForm.touched.adresse ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.adresse }
+                            </span></p> : null}
                         </FormGroup>
-                      </Col>
-                    </Row>
+                        </Col>
+                        <Col md="6">
+                        <FormGroup>
+                            <label className="form-control-label">Appartement</label>
+                            <Input
+                                className="form-control-alternative"
+                                placeholder="Appartement" type="text"
+                                name="appartement" id="appartement"
+                                {...UpdateForm.getFieldProps('appartement')}
+                            />
+                            {UpdateForm.errors.appartement && UpdateForm.touched.appartement ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.appartement }
+                            </span></p> : null}
+                        </FormGroup>
+                        </Col>
+                    </Row> 
+                    <br/>
                     <Row>
-                      <Col lg="4">
+                        <Col md="6">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-city"
-                          >
-                            Ville
-                          </label>
-                          <Input
-                            className="form-control-alternative"
-                            defaultValue="New York"
-                            id="input-city"
-                            placeholder="Ville"
-                            type="text"
-                          />
+                            <label className="form-control-label">Ville</label>
+                            <Input
+                                className="form-control-alternative"
+                                placeholder="Ville" type="text"
+                                name="ville" id="ville"
+                                {...UpdateForm.getFieldProps('ville')}
+                            />
+                            {UpdateForm.errors.ville && UpdateForm.touched.ville ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.ville }
+                            </span></p> : null}
                         </FormGroup>
-                      </Col>
-                      <Col lg="4">
+                        </Col>
+                        <Col md="6">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-country"
-                          >
-                            Appartement
-                          </label>
-                          <Input
-                            className="form-control-alternative"
-                            defaultValue="United States"
-                            id="input-country"
-                            placeholder="Appartement"
-                            type="text"
-                          />
+                            <label className="form-control-label">Code Postal</label>
+                            <Input
+                                className="form-control-alternative"
+                                placeholder="Code Postal" type="number"
+                                name="codePostal" id="codePostal"
+                                {...UpdateForm.getFieldProps('codePostal')}
+                            />
+                            {UpdateForm.errors.codePostal && UpdateForm.touched.codePostal ? 
+                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.codePostal }
+                            </span></p> : null}
                         </FormGroup>
-                      </Col>
-                      <Col lg="4">
-                        <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-country"
-                          >
-                            Code Postal
-                          </label>
-                          <Input
-                            className="form-control-alternative"
-                            id="input-postal-code"
-                            placeholder="Code Postal"
-                            type="number"
-                          />
-                        </FormGroup>
-                      </Col>
-                    </Row>
-                  </div>        
-                </Form>
+                        </Col>
+                    </Row>   
+                    </div>  
               </div>
               <div className="modal-footer">
-                <Button color="primary" type="button">
+                <Button color="primary" type="submit" >{/*disabled={!(AddForm.dirty && AddForm.isValid)} */}
                   Modifier
                 </Button>
-                <Button className="ml-auto" color="link" data-dismiss="modal" type="button" onClick={toggleUpdateModal}  >
+                <Button className="ml-auto" color="link" data-dismiss="modal" type="button" onClick={CloseUpdateModal}  >
                   Annuler
                 </Button>
               </div>
+            </Form>
             </Modal>
-            {/* delete Ouvrage */}
+            {/* Delete Modal*/} 
             <Modal
               className="modal-dialog-centered modal-danger"
               contentClassName="bg-gradient-danger"
-              isOpen={state.deleteModal}
-              toggle={toggleDeleteModal}
+              isOpen={deleteModal}
+              toggle={CloseDeleteModal}
             >
               <div className="modal-header">
                 <h6 className="modal-title" id="modal-title-notification">
@@ -827,7 +1020,7 @@ function User(){
                   className="close"
                   data-dismiss="modal"
                   type="button"
-                  onClick={toggleDeleteModal}
+                  onClick={CloseDeleteModal}
                 >
                   <span aria-hidden={true}>×</span>
                 </button>
@@ -842,7 +1035,8 @@ function User(){
                 </div>
               </div>
               <div className="modal-footer">
-                <Button className="btn-white" color="default" type="button">
+                <Button className="btn-white" color="default" type="button"
+                onClick={delete_user}>
                   Supprimer
                 </Button>
                 <Button
@@ -850,7 +1044,7 @@ function User(){
                   color="link"
                   data-dismiss="modal"
                   type="button"
-                  onClick={toggleDeleteModal}
+                  onClick={CloseDeleteModal}
                 >
                   Annuler
                 </Button>

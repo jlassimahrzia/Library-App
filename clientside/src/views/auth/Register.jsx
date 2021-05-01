@@ -22,7 +22,7 @@ const Register = () => {
     name: "",
     email : "",
     password : "",
-    type : 2
+    type : '2'
   })
 
   let history = useHistory();
