@@ -64,6 +64,27 @@ const Sidebar = (props) => {
       }
     });
   };
+  const createLinksEmprunts = (routes) => {
+    return routes.map((prop, key) => {
+      if (prop.layout === "/admin/emprunts") {
+        return (
+          <NavItem key={key}>
+            <NavLink
+              to={prop.layout + prop.path}
+              tag={NavLinkRRD}
+              onClick={closeCollapse}
+              activeClassName="active"
+            >
+              <i className={prop.icon} />
+              {prop.name}
+            </NavLink>
+          </NavItem>
+        );
+      } else {
+        return null;
+      }
+    });
+  };
 
   //const { bgColor, routes, logo } = props;
   const { routes, logo } = props;
@@ -217,26 +238,7 @@ const Sidebar = (props) => {
           {/* Heading */}
           <h6 className="navbar-heading text-muted">Les Emprunts</h6>
           {/* Navigation */}
-          <Nav className="mb-md-3" navbar>
-            <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/colors?ref=adr-admin-sidebar">
-                <i className="ni ni-bullet-list-67" />
-                Liste des emprunts
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/overview?ref=adr-admin-sidebar">
-                <i className="ni ni-fat-add" />
-                Ajout d'un Nouveau emprunt
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/alerts?ref=adr-admin-sidebar">
-                <i className="ni ni-archive-2" />
-                Archive des emprunts
-              </NavLink>
-            </NavItem>
-          </Nav>
+          <Nav navbar>{createLinksEmprunts(routes)} </Nav>
         </Collapse>
       </Container>
     </Navbar>

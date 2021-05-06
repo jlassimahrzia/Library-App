@@ -23,7 +23,7 @@ function Category(){
     const [categories, setCategories] = useState([]);
     const [search, setSearch] = useState("");
     // Pagination
-    const [pageSize] = useState(2)
+    const [pageSize] = useState(10)
     const [currentPage,setCurrentPage] = useState(0)
     const [pagesCount,setPagesCount] = useState(0)
     // load list of categories

@@ -1,13 +1,14 @@
-import Index from "views/Index.jsx";
+// Auth
 import Register from "views/auth/Register.jsx";
 import Login from "views/auth/Login.jsx";
+// Admin
 import Ouvrage from "views/admin/Ouvrage";
-import Category from "views/admin/Category"
-import User from "views/admin/User"
-//import Tables from "views/examples/Tables.jsx";
-//import Icons from "views/examples/Icons.jsx";
-//import Profile from "views/examples/Profile.jsx";
-/* import Maps from "views/examples/Maps.jsx"; */
+import Category from "views/admin/Category";
+import User from "views/admin/User";
+import Index from "views/Index.jsx";
+import EmpruntsEnCours from "views/admin/emprunts/EmpruntsEnCours"
+import EmpruntsEnRetards from "views/admin/emprunts/EmpruntsEnRetards"
+import EmpruntsEnArchive from "views/admin/emprunts/EmpruntsEnArchive"
 var routes = [
     /** Auth Routes */
     {
@@ -52,35 +53,29 @@ var routes = [
         icon: "ni ni-circle-08 text-info",
         component: User,
         layout: "/admin",
+    },
+    /* Admin Emprunts Routes */
+    {
+        path: "/emprunts_en_cours",
+        name: "Liste des emprunts en cours",
+        icon: "ni ni-bullet-list-67 text-info",
+        component: EmpruntsEnCours,
+        layout: "/admin/emprunts",
+    },
+    {
+        path: "/emprunts_en_retards",
+        name: "Liste des emprunts en retards",
+        icon: "ni ni-time-alarm text-info",
+        component: EmpruntsEnRetards,
+        layout: "/admin/emprunts",
+    },
+    {
+        path: "/emprunts_en_archives",
+        name: "Liste des emprunts en archives",
+        icon: "ni ni-archive-2 text-info",
+        component: EmpruntsEnArchive,
+        layout: "/admin/emprunts",
     }
-    /* {
-        path: "/icons",
-        name: "Icons",
-        icon: "ni ni-planet text-blue",
-        component: Icons,
-        layout: "/admin",
-    }, */
-    /* {
-        path: "/maps",
-        name: "Maps",
-        icon: "ni ni-pin-3 text-orange",
-        component: Maps,
-        layout: "/admin",
-    }, */
-    /* {
-        path: "/user-profile",
-        name: "User Profile",
-        icon: "ni ni-single-02 text-yellow",
-        component: Profile,
-        layout: "/admin",
-    }, */
-    /* {
-        path: "/tables",
-        name: "Tables",
-        icon: "ni ni-bullet-list-67 text-red",
-        component: Tables,
-        layout: "/admin",
-    }, */
 
 ];
 export default routes;

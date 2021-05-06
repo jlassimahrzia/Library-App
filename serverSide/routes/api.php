@@ -45,4 +45,16 @@ Route::middleware(['auth:api'])->group(function () {
     Route::delete('/delete_ouvrage/{id}', 'OuvrageController@delete');
     Route::post('/upload_pdf', 'OuvrageController@upload_pdf');
     Route::post('/search_ouvrage', 'OuvrageController@search');
+
+    /*
+    * Emprunts
+    */
+    Route::post('/store_emprunt', 'EmprunterController@store');
+    Route::get('/emprunt_en_cours', 'EmprunterController@getEmpruntsEnCours');
+    Route::get('/emprunt_en_retard', 'EmprunterController@getEmpruntsEnRetards');
+    Route::get('/emprunt_en_archive', 'EmprunterController@getEmpruntsEnArchives');
+    Route::post('/set_rendu', 'EmprunterController@setRendu');
+    Route::delete('/delete_emprunt/{id}', 'EmprunterController@delete');
+    Route::put('/update_emprunt/{id}', 'EmprunterController@update');
+    Route::post('/search_emprunt', 'EmprunterController@search');
 });
