@@ -17,8 +17,8 @@ Route::middleware(['auth:api'])->group(function () {
     /*
     * Users
     */
-    Route::get('/user', function (Request $request) {return $request->user();}); // Authenticated User
     Route::post('/logout', 'UserController@logout');
+    Route::get('/user', function (Request $request) {return $request->user();});
     Route::post('/store_user', 'UserController@store');
     Route::delete('/delete_user/{id}', 'UserController@delete');
     Route::put('/update_user/{id}', 'UserController@update');

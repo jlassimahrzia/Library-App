@@ -894,7 +894,7 @@ function Ouvrage() {
                                             name="photo" id="photo"
                                             onChange={(e) => handleImage(e)}
                                         />
-                                        {ouvrageUpdate !== null ? <a href={`http://localhost:8000/photos_couverture/${ouvrageUpdate.photoCouverture}`} target="_blank">{ouvrageUpdate.photoCouverture}</a> : null}
+                                        {ouvrageUpdate !== null ? <a href={`http://localhost:8000/photos_couverture/${ouvrageUpdate.photoCouverture}`} target="_blank" rel="noreferrer">{ouvrageUpdate.photoCouverture}</a> : null}
                                         {FileError != null ?
                                             <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
                                                 <i className="ni ni-fat-remove" /> {FileError}
@@ -907,7 +907,7 @@ function Ouvrage() {
                                                 className="form-control-alternative"
                                                 type="file" onChange={handleInputChange}
                                             />
-                                            {ouvrageUpdate !== null && ouvrageUpdate.pdfVersion !== null ? <a href={`http://localhost:8000/files/${ouvrageUpdate.pdfVersion}`} target="_blank">{ouvrageUpdate.pdfVersion}</a> : null}
+                                            {ouvrageUpdate !== null && ouvrageUpdate.pdfVersion !== null ? <a href={`http://localhost:8000/files/${ouvrageUpdate.pdfVersion}`} target="_blank" rel="noreferrer">{ouvrageUpdate.pdfVersion}</a> : null}
                                             {PdfError != null ?
                                                 <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
                                                     <i className="ni ni-fat-remove" /> {PdfError}

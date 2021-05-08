@@ -1,7 +1,7 @@
-// Auth
+// Auth Components
 import Register from "views/auth/Register.jsx";
 import Login from "views/auth/Login.jsx";
-// Admin
+// Admin Components
 import Ouvrage from "views/admin/Ouvrage";
 import Category from "views/admin/Category";
 import User from "views/admin/User";
@@ -9,6 +9,10 @@ import Index from "views/Index.jsx";
 import EmpruntsEnCours from "views/admin/emprunts/EmpruntsEnCours"
 import EmpruntsEnRetards from "views/admin/emprunts/EmpruntsEnRetards"
 import EmpruntsEnArchive from "views/admin/emprunts/EmpruntsEnArchive"
+// User Components
+import Home from "views/user/home/Home"
+import About from "views/user/About"
+import Contact from "views/user/Contact"
 var routes = [
     /** Auth Routes */
     {
@@ -75,6 +79,25 @@ var routes = [
         icon: "ni ni-archive-2 text-info",
         component: EmpruntsEnArchive,
         layout: "/admin/emprunts",
+    },
+    /* User routes */
+    {
+        path: "/index",
+        name: "Home",
+        component: Home,
+        layout: "/user",
+    },
+    {
+        path: "/about",
+        name: "A propos",
+        component: About,
+        layout: "/user",
+    },
+    {
+        path: "/contact",
+        name: "Contact",
+        component: Contact,
+        layout: "/user",
     }
 
 ];

@@ -7,7 +7,7 @@ import {
     DropdownMenu,DropdownItem, UncontrolledDropdown, DropdownToggle,
     Pagination,PaginationItem,PaginationLink,
     Table,Container,Row,FormGroup,InputGroup,InputGroupAddon,InputGroupText,
-    Button,Col,Modal,Form,Input,CardBody,CardImg
+    Button,Col,Modal,Input,CardBody
   } from "reactstrap"
 import EmpruntService from 'services/EmpruntService'
 function EmpruntsEnRetards(){
@@ -134,7 +134,7 @@ function EmpruntsEnRetards(){
                     <tbody>
                     { empruntsList.slice(currentPage * pageSize,(currentPage + 1) * pageSize).map((item,index) => ( 
                         <tr key={index}>
-                            <td>{currentPage==0 ? index+1 : index+3}</td>
+                            <td>{currentPage===0 ? index+1 : index+3}</td>
                             <td>
                                 {item.ouvrage.titre}
                             </td>

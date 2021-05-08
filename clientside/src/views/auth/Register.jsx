@@ -1,6 +1,6 @@
 import React , {useState} from "react";
-import axios from 'axios'
 import { useHistory } from 'react-router-dom'
+import AuthService from "services/AuthService"
 // reactstrap components
 import {
   Button,
@@ -33,16 +33,8 @@ const Register = () => {
 
   const onSubmit = e => {
       e.preventDefault();
-      axios.post("http://localhost:8000/api/register",state )
-          .then(res =>{
-              console.log(res);
-              console.log("success");
-              history.push('/');
-          })
-          .catch(error => {
-              console.log(error);
-              console.log("fail")
-          });
+      AuthService.Register(state);
+      history.push('/');
   }
   return (
     <>
@@ -92,7 +84,7 @@ const Register = () => {
           <CardBody className="px-lg-5 py-lg-5">
             <div className="text-center text-muted mb-4">
               {/* <small>Or sign up with credentials</small> */}
-              <small>Sign up with credentials</small>
+              <small>Inscrivez-vous avec vos identifiants</small>
             </div>
             <Form role="form" onSubmit={onSubmit}>
               <FormGroup>
@@ -102,7 +94,7 @@ const Register = () => {
                       <i className="ni ni-hat-3" />
                     </InputGroupText>
                   </InputGroupAddon>
-                  <Input placeholder="Name" type="text" 
+                  <Input placeholder="Nom et Prénom" type="text" 
                   name="name" value={state.name} onChange={handleChange}/>
                 </InputGroup>
               </FormGroup>
@@ -128,7 +120,7 @@ const Register = () => {
                     </InputGroupText>
                   </InputGroupAddon>
                   <Input
-                    placeholder="Password"
+                    placeholder="Mot de passe"
                     type="password"
                     name="password" value={state.password} onChange={handleChange}
                   />
@@ -164,7 +156,7 @@ const Register = () => {
               </Row> */}
               <div className="text-center">
                 <Button className="mt-4" color="primary" type="submit">
-                  Create account
+                  Créer un compte
                 </Button>
               </div>
             </Form>

@@ -1,8 +1,7 @@
 import React from "react"
-import axios from 'axios'
 import { useHistory } from 'react-router-dom'
-import CookieService from "../../services/CookieService"
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"
+import AuthService from "services/AuthService"
 // reactstrap components
 import {
   DropdownMenu,
@@ -19,25 +18,9 @@ function AdminNavbar(props){
 
   let history = useHistory();
 
-  async function logout (event){
-      const at = CookieService.get("access_token");
-      const options = {
-          headers: {
-              Authorization: "Bearer " + at,
-          },
-      };
-      await axios.post("http://localhost:8000/api/logout",null,options)
-         .then(res =>{
-              //console.log(res);
-              //console.log("success");
-              CookieService.remove("access_token");
-              history.push('/');
-          })
-         .catch(error => {
-              //console.log(error);
-              //console.log("fail");
-              alert("Try agian");
-         }); 
+  const logout = async () => {
+    await AuthService.logout();
+    history.push("/auth/login");
   }
 
   return (

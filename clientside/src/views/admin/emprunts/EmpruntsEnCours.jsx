@@ -6,7 +6,7 @@ import {
     DropdownMenu,DropdownItem, UncontrolledDropdown, DropdownToggle,
     Pagination,PaginationItem,PaginationLink,
     Table,Container,Row,FormGroup,InputGroup,InputGroupAddon,InputGroupText,
-    Button,Col,Modal,Form,Input,CardBody,CardImg
+    Button,Col,Modal,Form,Input,CardBody
   } from "reactstrap"
 // Forms
 import { useFormik } from 'formik'
@@ -252,7 +252,7 @@ function EmpruntsEnCours(){
                     <tbody>
                     { empruntsList.slice(currentPage * pageSize,(currentPage + 1) * pageSize).map((item,index) => ( 
                         <tr key={index}>
-                            <td>{currentPage==0 ? index+1 : index+3}</td>
+                            <td>{currentPage===0 ? index+1 : index+3}</td>
                             <td>
                                 {item.ouvrage.titre}
                             </td>

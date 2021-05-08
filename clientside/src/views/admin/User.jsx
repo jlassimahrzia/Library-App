@@ -822,7 +822,7 @@ function User(){
                                 name="photo" id="photo"
                                 onChange={ (e) => handleImage(e)}
                             />
-                            {userUpdate !== null ? <a href={`http://localhost:8000/images/${userUpdate.photo}`} target="_blank">{userUpdate.photo}</a> : null}
+                            {userUpdate !== null ? <a href={`http://localhost:8000/images/${userUpdate.photo}`} target="_blank" rel="noreferrer">{userUpdate.photo}</a> : null}
                             { FileError != null ? 
                             <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
                                 <i className="ni ni-fat-remove" /> { FileError }

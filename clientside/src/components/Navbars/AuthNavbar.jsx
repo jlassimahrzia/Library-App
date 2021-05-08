@@ -22,7 +22,7 @@ const AuthNavbar = () => {
             <img
               alt="..."
               src={
-                require("../../assets/img/brand/argon-react-white.png").default
+                require("assets/img/brand/argon-react-white.png").default
               }
             />
           </NavbarBrand>
@@ -37,7 +37,7 @@ const AuthNavbar = () => {
                     <img
                       alt="..."
                       src={
-                        require("../../assets/img/brand/argon-react.png")
+                        require("assets/img/brand/argon-react.png")
                           .default
                       }
                     />
@@ -59,13 +59,13 @@ const AuthNavbar = () => {
                   tag={Link}
                 >
                   <i className="ni ni-circle-08" />
-                  <span className="nav-link-inner--text">Register</span>
+                  <span className="nav-link-inner--text">Créer un compte</span>
                 </NavLink>
               </NavItem>
               <NavItem>
                 <NavLink className="nav-link-icon" to="/auth/login" tag={Link}>
                   <i className="ni ni-key-25" />
-                  <span className="nav-link-inner--text">Login</span>
+                  <span className="nav-link-inner--text">Connexion</span>
                 </NavLink>
               </NavItem>
             </Nav>

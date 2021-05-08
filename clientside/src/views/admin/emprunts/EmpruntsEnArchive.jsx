@@ -7,12 +7,11 @@ import {
     DropdownMenu,DropdownItem, UncontrolledDropdown, DropdownToggle,
     Pagination,PaginationItem,PaginationLink,
     Table,Container,Row,FormGroup,InputGroup,InputGroupAddon,InputGroupText,
-    Button,Col,Modal,Form,Input,CardBody,CardImg
+    Button,Col,Modal,Input,CardBody
   } from "reactstrap"
 import EmpruntService from 'services/EmpruntService'
 function EmpruntsEnArchive(){
     // Modal
-    const [RenduModal, setRenduModal] = useState(false);
     const [OuvrageModal, setOuvrageModal] = useState(false);
     const [EmprunteurModal, setEmprunteurModal] = useState(false);
     // List
@@ -24,7 +23,6 @@ function EmpruntsEnArchive(){
     // Autres
     const [ouvrage,setOuvrage] = useState('');
     const [user,setUser] = useState('');
-    const [id_emprunt,setIdEmprunt] = useState('');
     // Load List
     const retrieveEmpruntsList = async () => {
         const data = await EmpruntService.getEmpruntsEnArchives();
@@ -37,7 +35,7 @@ function EmpruntsEnArchive(){
     // DidUpdate
     useEffect(() => {
 
-    }, [empruntsList ,pageSize , currentPage , pagesCount , RenduModal,OuvrageModal,EmprunteurModal])
+    }, [empruntsList ,pageSize , currentPage , pagesCount ,OuvrageModal,EmprunteurModal])
     
     useEffect(() => {
         let pages_number = Math.ceil(empruntsList.length / pageSize) ;
@@ -119,7 +117,7 @@ function EmpruntsEnArchive(){
                     <tbody>
                     { empruntsList.slice(currentPage * pageSize,(currentPage + 1) * pageSize).map((item,index) => ( 
                         <tr key={index}>
-                            <td>{currentPage==0 ? index+1 : index+3}</td>
+                            <td>{currentPage===0 ? index+1 : index+3}</td>
                             <td>
                                 {item.ouvrage.titre}
                             </td>

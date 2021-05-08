@@ -8,14 +8,14 @@ import "assets/scss/argon-dashboard-react.scss";
 
 import AdminLayout from "layouts/Admin.jsx";
 import AuthLayout from "layouts/Auth.jsx";
-//import PDFReader from 'components/PdfLoader/PDFReader';
-
+import UserLayout from "layouts/User.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
     <Switch>
       <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
       <Route path="/auth" render={(props) => <AuthLayout {...props} />} />
+      <Route path="/user" render={() => <UserLayout  />} />
       <Redirect from="/" to="/auth/login" />
     </Switch>
   </BrowserRouter>,
