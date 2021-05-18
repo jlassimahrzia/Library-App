@@ -135,15 +135,13 @@ function User(){
     }
     const validationSchema = Yup.object({
         cin: Yup.number().required("Il faut remplir le champ CIN").test('len', 'Le num de CIN doit étre de 8 chiffres', (val) =>  { if(val) return val.toString().length === 8; }),
-        numInscription: Yup.string().required('Il faut remplir le champ num d\'nscription'),
         DateNaissance: Yup.date().required('Il faut remplir le champ Date de Naissance'),
         telephone: Yup.number().required("Il faut remplir le champ num de télèphone").test('len', 'Le num de télèphone doit étre de 8 chiffres', (val) => { if(val) return val.toString().length === 8; } ),
         adresse: Yup.string().required('Il faut remplir le champ adresse'),
         appartement: Yup.string().required('Il faut remplir le champ appartement'),
         ville: Yup.string().required('Il faut remplir le champ ville'),
         codePostal: Yup.number().required("Il faut remplir le champ Code Postal").test('len', 'Le num de CIN doit étre de 4 chiffres',(val) => { if(val) return val.toString().length === 4; }  ),
-        niveau: Yup.string().required('Il faut selectionner le niveau'),
-        classe: Yup.string().required('Il faut selectionner la classe'),    
+        profession: Yup.string().required('Il faut selectionner le profession')
     })
     // Add Form 
     const AddForm = useFormik({
@@ -152,15 +150,13 @@ function User(){
             email: '',
             cin:'',
             numCarte: generateNumber(),
-            numInscription:'',
             DateNaissance:'',
             telephone:'',
             adresse:'',
             appartement:'',
             ville:'',
             codePostal:'',
-            niveau:'',
-            classe:''
+            profession:''
         },
         onSubmit: (values,submitProps)  => {
             UserService.add(values,photo,submitProps)
@@ -176,15 +172,13 @@ function User(){
             email: userUpdate ? userUpdate.email : "",
             cin: userUpdate ? userUpdate.cin : "",
             numCarte: userUpdate ? userUpdate.numCarte : "",
-            numInscription: userUpdate ? userUpdate.numInscription : "",
             DateNaissance: userUpdate ? userUpdate.DateNaissance : "",
             telephone: userUpdate ? userUpdate.telephone : "",
             adresse: userUpdate ? userUpdate.adresse : "",
             appartement: userUpdate ? userUpdate.appartement : "",
             ville: userUpdate ? userUpdate.ville : "",
             codePostal: userUpdate ? userUpdate.codePostal : "",
-            niveau: userUpdate ? userUpdate.niveau : "",
-            classe: userUpdate ? userUpdate.classe : ""
+            profession: userUpdate ? userUpdate.profession : ""
         },
         onSubmit: (values,submitProps)  => {
             UserService.update(userUpdate.id ,values,photo,submitProps)
@@ -228,7 +222,7 @@ function User(){
                         </InputGroupAddon>
                         <Input
                             className="form-control-alternative"
-                            placeholder="Chercher par Nom ou email ou CIN ou Num de carte ou Num d'inscription ou nivieau ou classe ...."
+                            placeholder="Chercher par Nom ou email ou CIN ou Num de carte  ou profession ...."
                             type="text"
                             value={search}
                             onChange={e => handleInput(e.target.value)}
@@ -273,15 +267,13 @@ function User(){
                                     <th scope="col">Email</th>
                                     <th scope="col">CIN</th>  
                                     <th scope="col">Num Carte</th>
-                                    <th scope="col">Num Inscription</th>
                                     <th scope="col">Date de Naissance</th>
                                     <th scope="col">Telephone</th>
                                     <th scope="col">Adresse</th>
                                     <th scope="col">Appartement</th>
                                     <th scope="col">Ville</th>
                                     <th scope="col">Code Postal</th>
-                                    <th scope="col">Niveau</th>
-                                    <th scope="col">Classe</th>
+                                    <th scope="col">profession</th>
                                     <th scope="col" />
                                 </tr>
                                 </thead>
@@ -307,9 +299,6 @@ function User(){
                                         {item.numCarte}
                                     </td>
                                     <td>
-                                        {item.numInscription}
-                                    </td>
-                                    <td>
                                         {item.DateNaissance}
                                     </td>
                                     <td>
@@ -328,10 +317,7 @@ function User(){
                                         {item.codePostal}
                                     </td> 
                                     <td>
-                                        {item.niveau}
-                                    </td>  
-                                    <td>
-                                        {item.classe}
+                                        {item.profession}
                                     </td>        
                                     <td className="text-right">
                                     <UncontrolledDropdown>
@@ -575,22 +561,7 @@ function User(){
                     </h6>
                     <div className="pl-lg-4">
                     <Row>
-                        <Col md="6">
-                        <FormGroup>
-                            <label className="form-control-label">NUM Inscription</label>
-                            <Input
-                                className="form-control-alternative"
-                                placeholder="NUM Inscription" type="text"
-                                name="numInscription" id="numInscription"
-                                {...AddForm.getFieldProps('numInscription')}
-                            />
-                            {AddForm.errors.numInscription && AddForm.touched.numInscription ? 
-                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
-                                <i className="ni ni-fat-remove" /> {AddForm.errors.numInscription }
-                            </span></p> : null}
-                        </FormGroup>
-                        </Col>
-                        <Col md="6">
+                        <Col md="12">
                         <FormGroup>
                             <label className="form-control-label">NUM Carte</label>
                             <Input
@@ -604,40 +575,19 @@ function User(){
                     </Row>
                     </div>
                     <h6 className="heading-small text-muted mb-4">
-                        Classes
+                        Profession
                     </h6>
                     <div className="pl-lg-4">
                     <Row>
-                        <Col md="6">
+                        <Col md="12">
                         <FormGroup>
-                            <label className="form-control-label">Niveau</label>
-                            <Input type="select" name="niveau" id="niveau" {...AddForm.getFieldProps('niveau')}>
-                                <option hidden>Selectionner ...</option> 
-                                <option value="II1">II1</option>
-                                <option value="II2">II2</option>
-                                <option value="II3">II3</option>
+                            <label className="form-control-label">profession</label>
+                            <Input type="text" name="profession" id="profession" {...AddForm.getFieldProps('profession')}
+                            placeholder="profession">
                             </Input>
-                            {AddForm.errors.niveau && AddForm.touched.niveau ? 
+                            {AddForm.errors.profession && AddForm.touched.profession ? 
                             <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
-                                <i className="ni ni-fat-remove" /> {AddForm.errors.niveau }
-                            </span></p> : null}
-                        </FormGroup>
-                        </Col>
-                        <Col md="6">
-                        <FormGroup>
-                            <label className="form-control-label">Classe</label>
-                            <Input type="select" name="classe" id="classe" {...AddForm.getFieldProps('classe')}>
-                                <option hidden>Selectionner ...</option> 
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="C">C</option>
-                                <option value="D">D</option>
-                                <option value="E">E</option>
-                                <option value="F">F</option>
-                            </Input>
-                            {AddForm.errors.classe && AddForm.touched.classe ? 
-                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
-                                <i className="ni ni-fat-remove" /> {AddForm.errors.classe }
+                                <i className="ni ni-fat-remove" /> {AddForm.errors.profession }
                             </span></p> : null}
                         </FormGroup>
                         </Col>
@@ -851,22 +801,7 @@ function User(){
                     </h6>
                     <div className="pl-lg-4">
                     <Row>
-                        <Col md="6">
-                        <FormGroup>
-                            <label className="form-control-label">NUM Inscription</label>
-                            <Input
-                                className="form-control-alternative"
-                                placeholder="NUM Inscription" type="text"
-                                name="numInscription" id="numInscription"
-                                {...UpdateForm.getFieldProps('numInscription')}
-                            />
-                            {UpdateForm.errors.numInscription && UpdateForm.touched.numInscription ? 
-                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
-                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.numInscription }
-                            </span></p> : null}
-                        </FormGroup>
-                        </Col>
-                        <Col md="6">
+                        <Col md="12">
                         <FormGroup>
                             <label className="form-control-label">NUM Carte</label>
                             <Input
@@ -884,40 +819,19 @@ function User(){
                     </Row>
                     </div>
                     <h6 className="heading-small text-muted mb-4">
-                        Classes
+                        Profession 
                     </h6>
                     <div className="pl-lg-4">
                     <Row>
-                        <Col md="6">
+                        <Col md="12">
                         <FormGroup>
-                            <label className="form-control-label">Niveau</label>
-                            <Input type="select" name="niveau" id="niveau" {...UpdateForm.getFieldProps('niveau')}>
-                                <option hidden>Selectionner ...</option> 
-                                <option value="II1">II1</option>
-                                <option value="II2">II2</option>
-                                <option value="II3">II3</option>
+                            <label className="form-control-label">Profession</label>
+                            <Input type="text" name="profession" id="profession" 
+                            {...UpdateForm.getFieldProps('profession')} placeholder="profession">
                             </Input>
-                            {UpdateForm.errors.niveau && UpdateForm.touched.niveau ? 
+                            {UpdateForm.errors.profession && UpdateForm.touched.profession ? 
                             <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
-                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.niveau }
-                            </span></p> : null}
-                        </FormGroup>
-                        </Col>
-                        <Col md="6">
-                        <FormGroup>
-                            <label className="form-control-label">Classe</label>
-                            <Input type="select" name="classe" id="classe" {...UpdateForm.getFieldProps('classe')}>
-                                <option hidden>Selectionner ...</option> 
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="C">C</option>
-                                <option value="D">D</option>
-                                <option value="E">E</option>
-                                <option value="F">F</option>
-                            </Input>
-                            {UpdateForm.errors.classe && UpdateForm.touched.classe ? 
-                            <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
-                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.classe }
+                                <i className="ni ni-fat-remove" /> {UpdateForm.errors.profession }
                             </span></p> : null}
                         </FormGroup>
                         </Col>

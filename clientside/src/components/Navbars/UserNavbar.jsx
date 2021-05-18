@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"
+import { useState , useEffect} from 'react'
 // reactstrap components
 import {
   UncontrolledCollapse,
@@ -9,9 +10,24 @@ import {
   Nav,
   Container,
   Row,
-  Col
-} from "reactstrap";
+  Col,UncontrolledDropdown,DropdownToggle,Media,DropdownMenu,DropdownItem,
+  Form,FormGroup,InputGroup,InputGroupAddon,InputGroupText,Input
+} from "reactstrap"
+import AuthService from "services/AuthService"
+import { useHistory } from 'react-router-dom'
+import LocalStorageService from "services/LocalStorageService" 
 function UserNavbar(props){
+    let history = useHistory();
+    const [user,setUser] = useState('');
+    useEffect(() => {
+      const user = LocalStorageService.getObject('user');
+      setUser(user);
+    }, [])
+    const logout = async () => {
+      await AuthService.logout();
+      history.push("/auth/login");
+    }
+
     return (
       <Navbar
         className="navbar-horizontal navbar-light bg-white" sticky="top"
@@ -68,6 +84,20 @@ function UserNavbar(props){
               </Row>
             </div>
             <Nav className="ml-auto" navbar>
+              {/* <NavItem>
+                <Form className="navbar-search navbar-search-light  form-inline mr-3 d-none d-md-flex ml-lg-auto">
+                    <FormGroup className="mb-0">
+                      <InputGroup className="input-group-alternative">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="fas fa-search" />
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input placeholder="Chercher" type="text" />
+                      </InputGroup>
+                    </FormGroup>
+                </Form>
+              </NavItem> */}
               <NavItem>
                 <NavLink
                   className="nav-link-icon"
@@ -100,6 +130,49 @@ function UserNavbar(props){
               </NavItem>
             </Nav>
           </UncontrolledCollapse>
+          <UncontrolledDropdown nav >
+                <DropdownToggle className="pr-0" nav>
+                  <Media className="align-items-center">
+                    <span className="avatar avatar-sm rounded-circle">
+                      <img
+                        alt="..."
+                        src={`http://localhost:8000/api/images/${user.photo}`}
+                      />
+                    </span>
+                    <Media className="ml-2 d-none d-lg-block">
+                      <span className="mb-0 text-sm font-weight-bold">
+                        {user.name}
+                      </span>
+                    </Media>
+                  </Media>
+                </DropdownToggle>
+                <DropdownMenu className="dropdown-menu-arrow" right>
+                  <DropdownItem className="noti-title" header tag="div">
+                    <h6 className="text-overflow m-0">Bienvenu!</h6>
+                  </DropdownItem>
+                  <DropdownItem to="/user/profile" tag={Link}>
+                    <i className="ni ni-single-02" />
+                    <span>Profile</span>
+                  </DropdownItem>
+                  <DropdownItem to="/user/mesEmprunts" tag={Link}>
+                    <i className="ni ni-calendar-grid-58" />
+                    <span>Mes Emprunts</span>
+                  </DropdownItem>
+                  {/*<DropdownItem to="/admin/user-profile" tag={Link}>
+                    <i className="ni ni-calendar-grid-58" />
+                    <span>Activity</span>
+                  </DropdownItem>
+                  <DropdownItem to="/admin/user-profile" tag={Link}>
+                    <i className="ni ni-support-16" />
+                    <span>Support</span>
+                  </DropdownItem> */}
+                  <DropdownItem divider />
+                  <DropdownItem onClick={logout}>
+                    <i className="ni ni-user-run" />
+                    <span>Déconnecter</span>
+                  </DropdownItem>
+                </DropdownMenu>
+                </UncontrolledDropdown>
         </Container>
       </Navbar>
     );

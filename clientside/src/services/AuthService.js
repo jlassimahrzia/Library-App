@@ -21,13 +21,9 @@ class AuthService {
         let user = {};
         await axios.post("http://localhost:8000/api/login", values)
             .then(res => {
-                console.log(res);
-                console.log("success");
                 this.handleLoginSuccess(res, isChecked);
             })
             .catch(error => {
-                console.log(error);
-                console.log("fail");
                 toast.error("Veuillez vérifier vos informations d'identification et réessayer");
             });
         user = await this.user();

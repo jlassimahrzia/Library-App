@@ -9,10 +9,13 @@ import Index from "views/Index.jsx";
 import EmpruntsEnCours from "views/admin/emprunts/EmpruntsEnCours"
 import EmpruntsEnRetards from "views/admin/emprunts/EmpruntsEnRetards"
 import EmpruntsEnArchive from "views/admin/emprunts/EmpruntsEnArchive"
+import EmpruntsEnLigne from "views/admin/emprunts/EmpruntsEnLigne"
 // User Components
 import Home from "views/user/home/Home"
 import About from "views/user/About"
 import Contact from "views/user/Contact"
+import MesEmprunts from "views/user/MesEmprunts"
+import Profile from "views/user/Profile"
 var routes = [
     /** Auth Routes */
     {
@@ -30,15 +33,15 @@ var routes = [
         layout: "/auth",
     },
     /** Admin Routes */
-    {
+    /* {
         path: "/index",
         name: "Tableau de bord",
         icon: "ni ni-tv-2 text-info",
         component: Index,
         layout: "/admin",
-    },
+    }, */
     {
-        path: "/categories",
+        path: "/index",
         name: "Categories",
         icon: "ni ni-collection text-info",
         component: Category,
@@ -64,6 +67,13 @@ var routes = [
         name: "Liste des emprunts en cours",
         icon: "ni ni-bullet-list-67 text-info",
         component: EmpruntsEnCours,
+        layout: "/admin/emprunts",
+    },
+    {
+        path: "/emprunts_en_ligne",
+        name: "Liste des emprunts à valider",
+        icon: "ni ni-check-bold text-info",
+        component: EmpruntsEnLigne,
         layout: "/admin/emprunts",
     },
     {
@@ -97,6 +107,18 @@ var routes = [
         path: "/contact",
         name: "Contact",
         component: Contact,
+        layout: "/user",
+    },
+    {
+        path: "/mesEmprunts",
+        name: "Mes Emprunts",
+        component: MesEmprunts,
+        layout: "/user",
+    },
+    {
+        path: "/profile",
+        name: "Profile",
+        component: Profile,
         layout: "/user",
     }
 

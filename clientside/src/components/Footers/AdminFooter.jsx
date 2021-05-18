@@ -16,8 +16,8 @@ const Footer = () => {
               rel="noopener noreferrer"
               target="_blank"
             >
-              ENSI Library
-            </a>
+              DigitaLib
+            </a> 
           </div>
         </Col>
 

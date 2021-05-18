@@ -83,15 +83,13 @@ class UserController extends Controller
             //'photo' => 'required',
             'cin' => "required|digits:8|unique:users",
             'numCarte' => "required|digits:8|unique:users",
-            'numInscription' => "required|string|unique:users",
             'DateNaissance' => "required|date_format:Y-m-d",
             'telephone' => "required|digits:8",
             'adresse' => 'required|string',
             'appartement' => 'required|string',
             'ville' => 'required|string',
             'codePostal' => 'required|digits:4',
-            'niveau' => 'required|string',
-            'classe' => 'required|string',
+            'profession' => 'required|string',
             'type' => ['required'],
         ]);
 
@@ -116,15 +114,13 @@ class UserController extends Controller
             'photo' => $name,
             'cin' => $request->json()->get('cin'),
             'numCarte' => $request->json()->get('numCarte'),
-            'numInscription' => $request->json()->get('numInscription'),
             'DateNaissance' => $request->json()->get('DateNaissance'),
             'telephone' => $request->json()->get('telephone'),
             'adresse' => $request->json()->get('adresse'),
             'appartement' => $request->json()->get('appartement'),
             'ville' => $request->json()->get('ville'),
             'codePostal' => $request->json()->get('codePostal'),
-            'niveau' => $request->json()->get('niveau'),
-            'classe' => $request->json()->get('classe'),
+            'profession' => $request->json()->get('profession'),
             'type' => $request->json()->get('type')
         ]);
         return response()->json([
@@ -141,15 +137,13 @@ class UserController extends Controller
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
                 'cin' => "required|digits:8|unique:users,cin,".$user->id,
-                'numInscription' => "required|string|unique:users,numInscription,".$user->id,
                 'DateNaissance' => "required|date",
                 'telephone' => "required|digits:8",
                 'adresse' => 'required|string',
                 'appartement' => 'required|string',
                 'ville' => 'required|string',
                 'codePostal' => 'required|digits:4',
-                'niveau' => 'required|string',
-                'classe' => 'required|string',
+                'profession' => 'required|string'
             ]);
 
             if ($validator->fails()) {
@@ -175,15 +169,13 @@ class UserController extends Controller
                 'email' => $request->json()->get('email'),
                 'photo' => $name,
                 'cin' => $request->json()->get('cin'),
-                'numInscription' => $request->json()->get('numInscription'),
                 'DateNaissance' => $request->json()->get('DateNaissance'),
                 'telephone' => $request->json()->get('telephone'),
                 'adresse' => $request->json()->get('adresse'),
                 'appartement' => $request->json()->get('appartement'),
                 'ville' => $request->json()->get('ville'),
                 'codePostal' => $request->json()->get('codePostal'),
-                'niveau' => $request->json()->get('niveau'),
-                'classe' => $request->json()->get('classe'),
+                'profession' => $request->json()->get('profession')
             ]);
             return response()->json([
                 'test'=> true ,
@@ -213,8 +205,6 @@ class UserController extends Controller
         ->orWhere('email', 'LIKE', "%$s%")
         ->orWhere('cin', 'LIKE', "%$s%")
         ->orWhere('numCarte', 'LIKE', "%$s%")
-        ->orWhere('numInscription', 'LIKE', "%$s%")
-        ->orWhere('niveau', 'LIKE', "%$s%")
-        ->orWhere('classe', 'LIKE', "%$s%")->get();
+        ->orWhere('profession', 'LIKE', "%$s%")->get();
     }
 }

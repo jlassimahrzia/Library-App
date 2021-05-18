@@ -10,8 +10,9 @@ import {
     Button,Col,Modal,Input,CardBody
   } from "reactstrap"
 import EmpruntService from 'services/EmpruntService'
-function EmpruntsEnArchive(){
+function EmpruntsEnLigne(){
     // Modal
+    const [ValiderModal, setValiderModal] = useState(false);
     const [OuvrageModal, setOuvrageModal] = useState(false);
     const [EmprunteurModal, setEmprunteurModal] = useState(false);
     // List
@@ -23,10 +24,11 @@ function EmpruntsEnArchive(){
     // Autres
     const [ouvrage,setOuvrage] = useState('');
     const [user,setUser] = useState('');
+    const [id_emprunt,setIdEmprunt] = useState('');
     const [search, setSearch] = useState("");
     // Load List
     const retrieveEmpruntsList = async () => {
-        const data = await EmpruntService.getEmpruntsEnArchives();
+        const data = await EmpruntService.getEmpruntsEnLigne();
         setEmpruntsList([...data])
     }
     // Did Mount
@@ -36,7 +38,8 @@ function EmpruntsEnArchive(){
     // DidUpdate
     useEffect(() => {
 
-    }, [empruntsList ,pageSize , currentPage , pagesCount ,OuvrageModal,EmprunteurModal,search])
+    }, [empruntsList ,pageSize , currentPage , pagesCount , 
+      ValiderModal,OuvrageModal,EmprunteurModal,search])
     
     useEffect(() => {
         let pages_number = Math.ceil(empruntsList.length / pageSize) ;
@@ -46,14 +49,6 @@ function EmpruntsEnArchive(){
     const handleClick = (e, index) => {
         e.preventDefault();
         setCurrentPage(index);
-    }
-    // Search
-    const handleInput = async(value) =>{
-      setSearch(value)
-      const data = await EmpruntService.searchEnArchive({"search" : search });
-      setEmpruntsList([...data])
-      if(value === "")
-        retrieveEmpruntsList();
     }
     // Ouvrage Modal
     const OpenOuvrageModal = (ouvrage) => {
@@ -73,6 +68,28 @@ function EmpruntsEnArchive(){
         setUser('')
         setEmprunteurModal(false)
     };
+    // Valider Modal
+    const OpenValiderModal = (id) => {
+        setIdEmprunt(id)
+        setValiderModal(true)
+    };
+    const CloseValiderModal = () => {
+        setIdEmprunt('')
+        setValiderModal(false)
+    }
+    const setAsValider = ()=> {
+      EmpruntService.setValider(id_emprunt);
+      retrieveEmpruntsList();
+      CloseValiderModal();
+    }
+    // Search
+    const handleInput = async(value) =>{
+      setSearch(value)
+      const data = await EmpruntService.searchEnLigne({"search" : search });
+      setEmpruntsList([...data])
+      if(value === "")
+        retrieveEmpruntsList();
+    }
     return (
         <>
         <PageHeader />
@@ -107,7 +124,7 @@ function EmpruntsEnArchive(){
                 <CardHeader className="border-0">
                     <Row className="align-items-center">
                         <Col xs="8">
-                            <h3 className="mb-0">Liste des emprunts en archives</h3>
+                            <h3 className="mb-0">Liste des emprunts en cours</h3>
                         </Col>
                     </Row>               
                 </CardHeader>
@@ -120,6 +137,7 @@ function EmpruntsEnArchive(){
                         <th scope="col">Emprunteur</th>
                         <th scope="col">Date Début</th>
                         <th scope="col">Date Fin</th>
+                        <th scope="col">Valider</th>
                         <th scope="col" />
                     </tr>
                     </thead>
@@ -138,7 +156,13 @@ function EmpruntsEnArchive(){
                             </td>  
                             <td>
                                 {item.dateFin}
-                            </td>                 
+                            </td> 
+                            <td>
+                                <button type="button" className="btn btn-success btn-sm" onClick={()=>OpenValiderModal(item.id)}>
+                                    <i className="ni ni-check-bold"></i>
+                                    Valider !!
+                                </button>
+                            </td>                
                           <td className="text-right">
                           <UncontrolledDropdown>
                                 <DropdownToggle
@@ -243,7 +267,7 @@ function EmpruntsEnArchive(){
                     </div>
                     <div>
                         <i className="ni education_hat mr-2" />
-                        Category: {ouvrage.categorie !== undefined ? ouvrage.categorie.libelle : null} - Nombre d'exemplaires <Badge color="info" pill>{ouvrage.nbrExemplaire}</Badge>
+                        Category: {/*ouvrage !== null ? ouvrage.categorie.libelle : null*/} - Nombre d'exemplaires <Badge color="info" pill>{ouvrage.nbrExemplaire}</Badge>
                     </div>
                     <hr className="my-4" />
                     <p>
@@ -337,10 +361,54 @@ function EmpruntsEnArchive(){
                     </Button>
                 </div>
             </Modal>
-           
+            {/* Marque comme Valider */}
+            <Modal
+              className="modal-dialog-centered modal-success"
+              contentClassName="bg-gradient-success"
+              isOpen={ValiderModal}
+              toggle={CloseValiderModal}
+            >
+              <div className="modal-header">
+                <h6 className="modal-title" id="modal-title-notification">
+                  Valider Emprunt
+                </h6>
+                <button
+                  aria-label="Close"
+                  className="close"
+                  data-dismiss="modal"
+                  type="button"
+                  onClick={CloseValiderModal}
+                >
+                  <span aria-hidden={true}>×</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <div className="py-3 text-center">
+                  <i className="ni ni-check-bold ni-4x" />
+                  <h4 className="heading mt-4">êtes-vous sûr!</h4>
+                  <p>
+                    Vous ne pourrez pas refaire cette opération
+                  </p>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <Button className="btn-white" color="default" type="button" onClick={()=>setAsValider()}>
+                  Valider
+                </Button>
+                <Button
+                  className="text-white ml-auto"
+                  color="link"
+                  data-dismiss="modal"
+                  type="button"
+                  onClick={CloseValiderModal}
+                >
+                  Annuler
+                </Button>
+              </div>
+            </Modal>
         </Row>    
         </Container>
         </>
     )
 }
-export default EmpruntsEnArchive;
+export default EmpruntsEnLigne;

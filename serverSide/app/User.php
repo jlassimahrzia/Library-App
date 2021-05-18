@@ -16,8 +16,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','photo','cin','numCarte','numInscription','DateNaissance','telephone',
-        'adresse','appartement','ville','codePostal','niveau','classe','type'
+        'name', 'email', 'password','photo','cin','numCarte','DateNaissance','telephone',
+        'adresse','appartement','ville','codePostal','profession','type'
     ];
 
     /**
@@ -41,5 +41,10 @@ class User extends Authenticatable
     public function emprunters()
     {
         return $this->hasMany('App\Emprunter');
+    }
+
+    public function rating()
+    {
+        return $this->hasMany('App\Rating');
     }
 }

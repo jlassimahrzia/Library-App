@@ -25,6 +25,7 @@ function EmpruntsEnRetards(){
     const [ouvrage,setOuvrage] = useState('');
     const [user,setUser] = useState('');
     const [id_emprunt,setIdEmprunt] = useState('');
+    const [search, setSearch] = useState("");
     // Load List
     const retrieveEmpruntsList = async () => {
         const data = await EmpruntService.getEmpruntsEnRetards();
@@ -37,7 +38,8 @@ function EmpruntsEnRetards(){
     // DidUpdate
     useEffect(() => {
 
-    }, [empruntsList ,pageSize , currentPage , pagesCount , RenduModal,OuvrageModal,EmprunteurModal])
+    }, [empruntsList ,pageSize , currentPage , pagesCount , 
+      RenduModal,OuvrageModal,EmprunteurModal,search])
     
     useEffect(() => {
         let pages_number = Math.ceil(empruntsList.length / pageSize) ;
@@ -80,6 +82,14 @@ function EmpruntsEnRetards(){
       retrieveEmpruntsList();
       CloseRenduModal();
     }
+    // Search
+    const handleInput = async(value) =>{
+      setSearch(value)
+      const data = await EmpruntService.searchEnRetards({"search" : search });
+      setEmpruntsList([...data])
+      if(value === "")
+        retrieveEmpruntsList();
+    }
     return (
         <>
         <PageHeader />
@@ -97,10 +107,10 @@ function EmpruntsEnRetards(){
                         </InputGroupAddon>
                         <Input
                             className="form-control-alternative"
-                            placeholder="Chercher"
+                            placeholder="Chercher par nom / titre / Date debut - Fin ..."
                             type="text" 
-                            //value={search}
-                            //onChange={e => handleInput(e.target.value)}
+                            value={search}
+                            onChange={e => handleInput(e.target.value)}
                         />
                         </InputGroup>
                     </FormGroup>     
@@ -114,7 +124,7 @@ function EmpruntsEnRetards(){
                 <CardHeader className="border-0">
                     <Row className="align-items-center">
                         <Col xs="8">
-                            <h3 className="mb-0">Liste des emprunts en cours</h3>
+                            <h3 className="mb-0">Liste des emprunts en retards</h3>
                         </Col>
                     </Row>               
                 </CardHeader>
@@ -323,10 +333,6 @@ function EmpruntsEnRetards(){
                     <hr className="my-4" />
                     <div className="h5 font-weight-300">
                         <i className="ni business_briefcase-24 mr-2" />
-                        <b>Num d'inscription</b> {user.numInscription}
-                    </div>
-                    <div className="h5 font-weight-300">
-                        <i className="ni business_briefcase-24 mr-2" />
                         <b>Num CIN</b> {user.cin}
                     </div>
                     <div className="h5 font-weight-300">
@@ -343,7 +349,7 @@ function EmpruntsEnRetards(){
                     </div>
                     <div className="h5 font-weight-300">
                         <i className="ni business_briefcase-24 mr-2" />
-                        <b>Classe</b> {user.niveau}-{user.classe}
+                        <b>Profession</b> {user.profession}
                     </div>
                     </div>
                 </CardBody>

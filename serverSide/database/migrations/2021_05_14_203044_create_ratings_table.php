@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEmpruntersTable extends Migration
+class CreateRatingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,9 @@ class CreateEmpruntersTable extends Migration
      */
     public function up()
     {
-        Schema::create('emprunters', function (Blueprint $table) {
+        Schema::create('ratings', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->date('dateDebut');
-            $table->date('dateFin');
-            $table->enum('rendu',['oui','non']);
-            $table->enum('isValid',[true,false])->nullable();
+            $table->integer('rate');
             $table->unsignedBigInteger('ouvrage_id');
             $table->unsignedBigInteger('user_id');
             $table->foreign('ouvrage_id')->references('id')->on('ouvrages')->onDelete('cascade');
@@ -34,6 +31,6 @@ class CreateEmpruntersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('emprunters');
+        Schema::dropIfExists('ratings');
     }
 }

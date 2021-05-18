@@ -12,8 +12,9 @@ use Illuminate\Support\Facades\Response;
 class OuvrageController extends Controller
 {
     public function index(){
-        return Ouvrage::with('categorie')->get();
+        return Ouvrage::with('categorie','rating','rating.user')->get();
     }
+
     public function displayImage($filename)
     {
         $path = public_path('photos_couverture/' . $filename);

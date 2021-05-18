@@ -16,7 +16,7 @@ const Login = () => {
                   className="font-weight-bold ml-1"
                   href="https://www.creative-tim.com?ref=adr-auth-footer"
                 >
-                  ENSI LIBRARY 
+                  DigitaLib
                 </a>
               </div>
             </Col>

@@ -19,4 +19,10 @@ class Ouvrage extends Model
     {
         return $this->hasMany('App\Emprunter');
     }
+
+    public function rating()
+    {
+        return $this->hasMany('App\Rating');
+    }
+
 }

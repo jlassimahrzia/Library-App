@@ -203,14 +203,17 @@ function Ouvrage() {
                 let data = new FormData()
                 data.append("file", pdfFile)
                 OuvrageService.add(values, photo, data, submitProps)
+                toggleAddModal()
+                setPhoto("")
+                setpdfFile("")
             }
             else {
                 OuvrageService.add(values, photo, '', submitProps)
+                toggleAddModal()
+                setPhoto("")
+                setpdfFile("")
             }
             retrieveOuvrages()
-            toggleAddModal()
-            setPhoto("")
-            setpdfFile("")
         },
         validationSchema
     })
@@ -385,7 +388,8 @@ function Ouvrage() {
 
                                             <td>
 
-                                                <Button color="primary" size="sm" type="button" onClick={() => OpenPdfModal(item.pdfVersion)}>Voir PDF</Button>
+                                                <Button color="primary" size="sm" type="button" 
+                                                onClick={() => OpenPdfModal(item.pdfVersion)}>Voir PDF</Button>
                                                 
                                                 {/* {item.pdfVersion !== null ? <a href={`http://localhost:8000/files/${item.pdfVersion}`} target="_blank">{item.pdfVersion}</a> : null} */}
                                             </td>
@@ -919,10 +923,10 @@ function Ouvrage() {
                             <div className="modal-footer">
                                 <Button color="primary" type="submit">
                                     Modifier
-                </Button>
+                                </Button>
                                 <Button className="ml-auto" color="link" data-dismiss="modal" type="button" onClick={CloseUpdateModal}  >
                                     Annuler
-                </Button>
+                                </Button>
                             </div>
                         </Form>
                     </Modal>
@@ -1008,7 +1012,7 @@ function Ouvrage() {
                 </Button>
                         </div>
                     </Modal>
-
+                {/* Pdf Modal */}
                     <Modal
                         className="modal-dialog-centered"
                         size="lg"

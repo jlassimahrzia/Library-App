@@ -47,7 +47,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/search_ouvrage', 'OuvrageController@search');
 
     /*
-    * Emprunts
+    * Emprunts Admin Side
     */
     Route::post('/store_emprunt', 'EmprunterController@store');
     Route::get('/emprunt_en_cours', 'EmprunterController@getEmpruntsEnCours');
@@ -56,5 +56,22 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/set_rendu', 'EmprunterController@setRendu');
     Route::delete('/delete_emprunt/{id}', 'EmprunterController@delete');
     Route::put('/update_emprunt/{id}', 'EmprunterController@update');
-    Route::post('/search_emprunt', 'EmprunterController@search');
+    Route::post('/searchEnCours_emprunt', 'EmprunterController@searchEnCours');
+    Route::post('/searchEnRetards_emprunt', 'EmprunterController@searchEnRetards');
+    Route::post('/searchEnArchive_emprunt', 'EmprunterController@searchEnArchive');
+    Route::get('/emprunt_en_ligne', 'EmprunterController@getEmpruntsEnLigne');
+    Route::post('/valider', 'EmprunterController@Valider');
+    Route::post('/searchEnLigne_emprunt', 'EmprunterController@searchEnLigne');
+    /*
+    * Emprunts User Side
+    */
+    Route::get('/empruntEnCours/{id}', 'EmprunterController@getEmpruntsEnCoursByUser');
+    Route::get('/empruntEnRetards/{id}', 'EmprunterController@getEmpruntsEnRetardsByUser');
+    Route::get('/empruntEnArchives/{id}', 'EmprunterController@getEmpruntsEnArchivesByUser');
+    Route::post('/reservation', 'EmprunterController@reservation');
+
+    /*
+    * Rating
+    */
+    Route::post('/store_rating', 'RatingController@store');
 });

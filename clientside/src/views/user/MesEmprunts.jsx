@@ -5,40 +5,47 @@ import {
     Badge,Card, CardHeader, CardFooter,
     DropdownMenu,DropdownItem, UncontrolledDropdown, DropdownToggle,
     Pagination,PaginationItem,PaginationLink,
-    Table,Container,Row,FormGroup,InputGroup,InputGroupAddon,InputGroupText,
+    Table,Container,Row,
     Button,Col,Modal,Form,Input,CardBody
   } from "reactstrap"
 // Forms
 import { useFormik } from 'formik'
 import EmpruntService from 'services/EmpruntService'
-import UserService from 'services/UserService'
 import OuvrageService from 'services/OuvrageService'
 import * as Yup from 'yup'
 import { Toaster } from 'react-hot-toast';
-function EmpruntsEnCours(){
+import LocalStorageService from "services/LocalStorageService"
+import ReactReadMoreReadLess from "react-read-more-read-less";
+import EmpruntsEnArchive from 'views/admin/emprunts/EmpruntsEnArchive'
+function MesEmprunts(){
     // Modal
     const [addModal, setAddModal] = useState(false);
-    const [RenduModal, setRenduModal] = useState(false);
     const [OuvrageModal, setOuvrageModal] = useState(false);
-    const [EmprunteurModal, setEmprunteurModal] = useState(false);
     const [updateModal, setUpdateModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     // Autres
-    const [search, setSearch] = useState("");
     const [currentDay,setCurrentDay] = useState('');
-    const [users,setUsers] = useState([]);
-    const [empruntsList,setEmpruntsList] = useState([]);
+    const [empruntEnCours,setEmpruntEnCours] = useState([]);
+    const [empruntEnRetards,setEmpruntEnRetards] = useState([]);
+    const [empruntEnArchives,setEmpruntEnArchives] = useState([]);
     const [ouvrage,setOuvrage] = useState('');
-    const [user,setUser] = useState('');
-    const [id_emprunt,setIdEmprunt] = useState('');
-    const [emprunt,setEmprunt] = useState('');
     const [ouvrageDispo,setOuvrageDispo] = useState([]);
+    const [user,setUser] = useState('');
+    const [emprunt,setEmprunt] = useState('');
+    const [id_emprunt,setIdEmprunt] = useState('');
     // Pagination
     const [pageSize] = useState(2)
     const [currentPage,setCurrentPage] = useState(0)
     const [pagesCount,setPagesCount] = useState(0)
-  
-    // load list of users and ouvrages
+    // Pagination
+    const [pageSize2] = useState(2)
+    const [currentPage2,setCurrentPage2] = useState(0)
+    const [pagesCount2,setPagesCount2] = useState(0)
+    // Pagination
+    const [pageSize3] = useState(2)
+    const [currentPage3,setCurrentPage3] = useState(0)
+    const [pagesCount3,setPagesCount3] = useState(0)
+    // load list of ouvrages  
     const ouvragesDispo = async() => {
       let data = [];
       const tab = await OuvrageService.getAll();
@@ -49,35 +56,61 @@ function EmpruntsEnCours(){
       })
       setOuvrageDispo([...data])
     }
-    const retrieveUsers = async () => {
-      const data = await UserService.getInternUser();
-      setUsers([...data])
-    }
-    
 
-    const retrieveEmpruntsList = async () => {
-      const data = await EmpruntService.getEmpruntsEnCours();
-      setEmpruntsList([...data])
+    const retrieveEmpruntsEnCoursList = async () => {
+      const data = await EmpruntService.getEmpruntsEnCoursByUser();
+      setEmpruntEnCours([...data])
+    }
+    const retrieveEmpruntsEnRetardsList = async () => {
+      const data = await EmpruntService.getEmpruntsEnRetardsByUser();
+      setEmpruntEnRetards([...data])
+    }
+    const retrieveEmpruntsEnArchivesList = async () => {
+      const data = await EmpruntService.getEmpruntsEnArchivesByUser();
+      setEmpruntEnArchives([...data])
     }
 
     // Did Mount
     useEffect(() => {
+      setUser(LocalStorageService.getObject('user'))
+      retrieveEmpruntsEnCoursList();
+      retrieveEmpruntsEnRetardsList();
+      retrieveEmpruntsEnArchivesList();
+      setCurrentDay(getCurrentDay());
       ouvragesDispo();
-      retrieveUsers();
-      
-      retrieveEmpruntsList();
-      setCurrentDay(getCurrentDay())
     }, [])
 
     // DidUpdate
     useEffect(() => {
 
-    }, [updateModal ,addModal , deleteModal , users  ,ouvrageDispo, empruntsList , ouvrage 
-      , search,pageSize , currentPage , pagesCount])
+    }, [updateModal ,addModal , deleteModal , ouvrageDispo  , ouvrage 
+      ,empruntEnRetards,empruntEnArchives])
+    //Pagination
     useEffect(() => {
-      let pages_number = Math.ceil(empruntsList.length / pageSize) ;
+      let pages_number = Math.ceil(empruntEnCours.length / pageSize) ;
       setPagesCount(pages_number);
-    }, [empruntsList , pagesCount , pageSize])
+    }, [empruntEnCours , pagesCount , pageSize])
+    useEffect(() => {
+      let pages_number2 = Math.ceil(empruntEnRetards.length / pageSize2) ;
+      setPagesCount2(pages_number2);
+    }, [empruntEnRetards , pagesCount2 , pageSize2])
+    useEffect(() => {
+      let pages_number3 = Math.ceil(empruntEnArchives.length / pageSize3) ;
+      setPagesCount3(pages_number3);
+    }, [empruntEnArchives , pagesCount3 , pageSize3])
+    // Pagination
+    const handleClick = (e, index) => {
+      e.preventDefault();
+      setCurrentPage(index);
+    }
+    const handleClick2 = (e, index) => {
+      e.preventDefault();
+      setCurrentPage2(index);
+    }
+    const handleClick3 = (e, index) => {
+      e.preventDefault();
+      setCurrentPage3(index);
+    }
     // Current Day
     const getCurrentDay = () => {
       let newDate = new Date()
@@ -101,20 +134,6 @@ function EmpruntsEnCours(){
       setEmprunt('')
       setUpdateModal(false)
     }
-    // Rendu Modal
-    const OpenRenduModal = (id) => {
-        setIdEmprunt(id)
-        setRenduModal(true)
-    };
-    const CloseRenduModal = () => {
-        setIdEmprunt('')
-        setRenduModal(false)
-    }
-    const setAsRendu = ()=> {
-      EmpruntService.setRendu(id_emprunt);
-      retrieveEmpruntsList();
-      CloseRenduModal();
-    }
     // delete Modal
     const OpenDeleteModal = (id) => {
       setIdEmprunt(id)
@@ -127,7 +146,7 @@ function EmpruntsEnCours(){
     const delete_emprunt = () => {
       EmpruntService.delete(id_emprunt)
       setIdEmprunt('')
-      retrieveEmpruntsList();
+      retrieveEmpruntsEnCoursList();
       setDeleteModal(false)
     }
     // Ouvrage Modal
@@ -139,64 +158,42 @@ function EmpruntsEnCours(){
         setOuvrage('')
         setOuvrageModal(false)
     };
-    // Emprunteur Modal
-    const OpenEmprunteurModal = (user) => {
-        setUser(user)
-        setEmprunteurModal(true)
-    };
-    const CloseEmprunteurModal = () => {
-        setUser('')
-        setEmprunteurModal(false)
-    };
     // Add Form
     const validationSchema = Yup.object({
-      user_id : Yup.number().required('Il faut sélèctionner l\'emprunteur'),
       ouvrage_id : Yup.number().required('Il faut sélèctionner l\'ouvrage'),
       dateDebut: Yup.string().required('Il faut indiquer la date début'),
       dateFin : Yup.string().required('Il faut indiquer la date début'),
     })
     const AddForm = useFormik({
       initialValues : {
-        user_id : '',
         ouvrage_id : '',
         dateDebut: '',
         dateFin : ''
       },
       onSubmit: (values, submitProps)  => {
-        EmpruntService.add(values,submitProps);
-        retrieveEmpruntsList();
+        EmpruntService.reserver(values,submitProps);
+        retrieveEmpruntsEnCoursList();
         toggleAddModal();
       },
       validationSchema,
     })
     const UpdateForm = useFormik({
       initialValues : {
-        user_id : emprunt ? emprunt.user_id : "",
         ouvrage_id : emprunt ? emprunt.ouvrage_id : "",
         dateDebut: emprunt ? emprunt.dateDebut : "",
         dateFin : emprunt ? emprunt.dateFin : ""
       },
       onSubmit: (values, submitProps)  => {
-        EmpruntService.update(emprunt.id,values,submitProps);
-        retrieveEmpruntsList();
+        const data = { user_id: user.id, ...values };
+        EmpruntService.update(emprunt.id,data,submitProps);
+        retrieveEmpruntsEnCoursList()
         CloseUpdateModal();
       },
       validationSchema,
       enableReinitialize:true
     })
-    // Search
-    const handleInput = async(value) =>{
-      setSearch(value)
-      const data = await EmpruntService.searchEnCours({"search" : search });
-      setEmpruntsList([...data])
-      if(value === "")
-        retrieveEmpruntsList();
-    }
-    // Pagination
-    const handleClick = (e, index) => {
-      e.preventDefault();
-      setCurrentPage(index);
-    }
+   
+    
     return (
         <>
         <PageHeader />
@@ -204,36 +201,20 @@ function EmpruntsEnCours(){
         <Container className="mt--7" fluid>  
         <div>
                 <Row>
-                    <Col xs="6">
+                    <Col xs="8" className="mb-4">
                         <Button className="btn-icon btn-3" color="primary" type="button"
                             onClick={toggleAddModal}>
                                 <span className="btn-inner--icon">
-                                    <i className="ni ni-fat-add" />
+                                    <i className="ni ni-calendar-grid-58" />
                                 </span>
-                                <span className="btn-inner--text">Ajouter</span>
+                                <span className="btn-inner--text">Réservation</span>
                         </Button>
                     </Col>
-                    <Col className="text-right" xs="6">
-                        <FormGroup>
-                        <InputGroup className="input-group-alternative mb-4">
-                        <InputGroupAddon addonType="prepend">
-                            <InputGroupText>
-                            <i className="ni ni-zoom-split-in" />
-                            </InputGroupText>
-                        </InputGroupAddon>
-                        <Input
-                            className="form-control-alternative"
-                            placeholder="Chercher par nom / titre / Date debut - Fin ..."
-                            type="text" 
-                            value={search}
-                            onChange={e => handleInput(e.target.value)}
-                        />
-                        </InputGroup>
-                        </FormGroup> 
-                    </Col> 
+                    
                 </Row>
             </div>        
-        <Row>
+        
+          <Row>
             <div className="col">    
                 <Card className="shadow">
                 {/* Header */}
@@ -253,12 +234,12 @@ function EmpruntsEnCours(){
                         <th scope="col">Emprunteur</th>
                         <th scope="col">Date Début</th>
                         <th scope="col">Date Fin</th>
-                        <th scope="col">Rendu</th>
+                        <th scope="col">Valider</th>
                         <th scope="col" />
                     </tr>
                     </thead>
                     <tbody>
-                    { empruntsList.slice(currentPage * pageSize,(currentPage + 1) * pageSize).map((item,index) => ( 
+                    { empruntEnCours.slice(currentPage * pageSize,(currentPage + 1) * pageSize).map((item,index) => ( 
                         <tr key={index}>
                             <td>{currentPage===0 ? index+1 : index+3}</td>
                             <td>
@@ -272,13 +253,12 @@ function EmpruntsEnCours(){
                             </td>  
                             <td>
                                 {item.dateFin}
-                            </td> 
+                            </td>    
                             <td>
-                                <button type="button" className="btn btn-success btn-sm" onClick={()=>OpenRenduModal(item.id)}>
-                                    <i className="ni ni-check-bold"></i>
-                                    Rendu !!
-                                </button>
-                            </td>                
+                              {item.isValid === 'false' ? <span className="badge badge-warning">Non valider</span>: null}
+                              {item.isValid === 'true' ? <span className="badge badge-success">Valider</span>: null}
+                              {item.isValid === null ? <span>-</span> : null}
+                            </td>            
                           <td className="text-right">
                           <UncontrolledDropdown>
                                 <DropdownToggle
@@ -291,25 +271,20 @@ function EmpruntsEnCours(){
                                 <i className="fas fa-ellipsis-v" />
                                 </DropdownToggle>
                                 <DropdownMenu className="dropdown-menu-arrow" right>
-                                <DropdownItem  
+                                {item.isValid === 'false' ? <DropdownItem  
                                     onClick={ () => OpenUpdateModal(item)}
                                 >
                                   Modifier
-                                </DropdownItem>
-                                <DropdownItem
+                                </DropdownItem> : null }
+                                {item.isValid === 'false' ?<DropdownItem
                                     onClick={() => OpenDeleteModal(item.id)}
                                 >
                                   Annuler
-                                </DropdownItem>
+                                </DropdownItem>: null }
                                 <DropdownItem
                                     onClick={() => OpenOuvrageModal(item.ouvrage)}
                                 >
                                   Ouvrage Info
-                                </DropdownItem>
-                                <DropdownItem
-                                    onClick={() => OpenEmprunteurModal(item.user)}
-                                >
-                                  Emprunteur Info
                                 </DropdownItem>
                               </DropdownMenu>
                           </UncontrolledDropdown>
@@ -345,12 +320,203 @@ function EmpruntsEnCours(){
                   </nav>
                 </CardFooter>
                 </Card>
-            </div>  
+            </div> 
+            </Row>
+            <Row className="mt-5">
+            <div className="col">    
+                <Card className="shadow">
+                  {/* Header */}
+                <CardHeader className="border-0">
+                    <Row className="align-items-center">
+                        <Col xs="8">
+                            <h3 className="mb-0">Liste des emprunts en retards</h3>
+                        </Col>
+                    </Row>               
+                </CardHeader>
+                {/* List */}
+                <Table className="align-items-center table-flush" responsive>
+                    <thead className="thead-light">
+                    <tr>
+                        <th scope="col"># </th>  
+                        <th scope="col">Ouvrage </th>
+                        <th scope="col">Emprunteur</th>
+                        <th scope="col">Date Début</th>
+                        <th scope="col">Date Fin</th>
+                        <th scope="col">Valider</th>
+                        <th scope="col" />
+                    </tr>
+                    </thead>
+                    <tbody>
+                    { empruntEnRetards.slice(currentPage2 * pageSize2,(currentPage2 + 1) * pageSize2).map((item,index) => ( 
+                        <tr key={index}>
+                            <td>{currentPage2===0 ? index+1 : index+3}</td>
+                            <td>
+                                {item.ouvrage.titre}
+                            </td>
+                            <td>
+                                {item.user.name}
+                            </td>
+                            <td>
+                                {item.dateDebut}
+                            </td>  
+                            <td>
+                                {item.dateFin}
+                            </td>    
+                            <td>
+                              {item.isValid === 'false' ? <span className="badge badge-warning">Non valider</span>: null}
+                              {item.isValid === 'true' ? <span className="badge badge-success">Valider</span>: null}
+                              {item.isValid === null ? <span>-</span> : null}
+                            </td>            
+                          <td className="text-right">
+                          <UncontrolledDropdown>
+                                <DropdownToggle
+                                className="btn-icon-only text-light"
+                                role="button"
+                                size="sm"
+                                color=""
+                                onClick={(e) => e.preventDefault()}
+                                >
+                                <i className="fas fa-ellipsis-v" />
+                                </DropdownToggle>
+                                <DropdownMenu className="dropdown-menu-arrow" right>
+                                <DropdownItem
+                                    onClick={() => OpenOuvrageModal(item.ouvrage)}
+                                >
+                                  Ouvrage Info
+                                </DropdownItem>
+                                </DropdownMenu>
+                          </UncontrolledDropdown>
+                          </td>
+                        </tr>
+                        ))} 
+                    </tbody>
+                </Table>
+                {/* Pagination */}
+                <CardFooter className="py-4">
+                    <nav aria-label="...">
+                        <Pagination aria-label="Page navigation example">
+                        <PaginationItem disabled={currentPage2 <= 0}>
+                          <PaginationLink
+                            onClick={e => handleClick2(e, currentPage2 - 1)}
+                            previous
+                          />
+                        </PaginationItem>
+                        {[...Array(pagesCount2)].map((page, i) => 
+                          <PaginationItem active={i === currentPage2} key={i}>
+                            <PaginationLink onClick={e => handleClick2(e, i)}>
+                              {i + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )}
+                        <PaginationItem disabled={currentPage2 >= pagesCount2 - 1}>
+                          <PaginationLink
+                            onClick={e => handleClick2(e, currentPage2 + 1)}
+                            next
+                          />
+                        </PaginationItem>
+                        </Pagination>
+                  </nav>
+                </CardFooter>
+                </Card>
+            </div>   
+            </Row>
+            <Row className="mt-5">
+            <div className="col">    
+                <Card className="shadow">
+                  {/* Header */}
+                <CardHeader className="border-0">
+                    <Row className="align-items-center">
+                        <Col xs="8">
+                            <h3 className="mb-0">Liste des emprunts en archives</h3>
+                        </Col>
+                    </Row>               
+                </CardHeader>
+                {/* List */}
+                <Table className="align-items-center table-flush" responsive>
+                    <thead className="thead-light">
+                    <tr>
+                        <th scope="col"># </th>  
+                        <th scope="col">Ouvrage </th>
+                        <th scope="col">Emprunteur</th>
+                        <th scope="col">Date Début</th>
+                        <th scope="col">Date Fin</th>
+                        <th scope="col" />
+                    </tr>
+                    </thead>
+                    <tbody>
+                    { empruntEnArchives.slice(currentPage3 * pageSize3,(currentPage3 + 1) * pageSize3).map((item,index) => ( 
+                        <tr key={index}>
+                            <td>{currentPage3===0 ? index+1 : index+3}</td>
+                            <td>
+                                {item.ouvrage.titre}
+                            </td>
+                            <td>
+                                {item.user.name}
+                            </td>
+                            <td>
+                                {item.dateDebut}
+                            </td>  
+                            <td>
+                                {item.dateFin}
+                            </td>          
+                          <td className="text-right">
+                          <UncontrolledDropdown>
+                                <DropdownToggle
+                                className="btn-icon-only text-light"
+                                role="button"
+                                size="sm"
+                                color=""
+                                onClick={(e) => e.preventDefault()}
+                                >
+                                <i className="fas fa-ellipsis-v" />
+                                </DropdownToggle>
+                                <DropdownMenu className="dropdown-menu-arrow" right>
+                                <DropdownItem
+                                    onClick={() => OpenOuvrageModal(item.ouvrage)}
+                                >
+                                  Ouvrage Info
+                                </DropdownItem>
+                                </DropdownMenu>
+                          </UncontrolledDropdown>
+                          </td>
+                        </tr>
+                        ))} 
+                    </tbody>
+                </Table>
+                {/* Pagination */}
+                <CardFooter className="py-4">
+                    <nav aria-label="...">
+                        <Pagination aria-label="Page navigation example">
+                        <PaginationItem disabled={currentPage3 <= 0}>
+                          <PaginationLink
+                            onClick={e => handleClick3(e, currentPage3 - 1)}
+                            previous
+                          />
+                        </PaginationItem>
+                        {[...Array(pagesCount3)].map((page, i) => 
+                          <PaginationItem active={i === currentPage3} key={i}>
+                            <PaginationLink onClick={e => handleClick3(e, i)}>
+                              {i + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )}
+                        <PaginationItem disabled={currentPage3 >= pagesCount3 - 1}>
+                          <PaginationLink
+                            onClick={e => handleClick3(e, currentPage3 + 1)}
+                            next
+                          />
+                        </PaginationItem>
+                        </Pagination>
+                  </nav>
+                </CardFooter>
+                </Card>
+            </div>   
+            </Row>
             {/* Add Emprunt */}
             <Modal className="modal-dialog-centered" isOpen={addModal} toggle={toggleAddModal} >
               <div className="modal-header">
                 <h4 className="modal-title" id="modal-title-default">
-                  Ajouter un nouveau emprunts
+                  Réservation ouvrage en ligne
                 </h4>
                 <button
                   aria-label="Close"
@@ -364,22 +530,10 @@ function EmpruntsEnCours(){
               </div>
               <Form onSubmit={AddForm.handleSubmit}>
                 <div className="modal-body">
-                    <Row>
-                        <Col>
-                        <label className="form-control-label">Emprunteur</label>
-                        <Input type="select" name="user_id" id="user_id"
-                            {...AddForm.getFieldProps('user_id')}>
-                            <option hidden>Selectionner ...</option>
-                            {users.map((item, index) => (
-                            <option key={index} value={item.id}>{item.name}</option>
-                            ))}
-                        </Input>
-                        {AddForm.errors.user_id && AddForm.touched.user_id ?
-                        <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
-                        <i className="ni ni-fat-remove" /> {AddForm.errors.user_id}
-                        </span></p> : null}
-                        </Col>
-                    </Row>
+                    <div className="alert alert-warning" role="alert">
+                      Votre réservation en ligne sera automatiquement annuler aprés
+                      <b> 3 jours</b> si vous allez pas prendre l'ouvrage.
+                    </div>
                     <Row>
                         <Col>
                         <label className="form-control-label">Ouvrage</label>
@@ -425,7 +579,7 @@ function EmpruntsEnCours(){
                 </div>
                 <div className="modal-footer">
                   <Button color="primary" type="submit">
-                    Ajouter
+                    Réserver
                   </Button>
                   <Button className="ml-auto" color="link" data-dismiss="modal" type="button" onClick={toggleAddModal}  >
                     Annuler
@@ -451,22 +605,10 @@ function EmpruntsEnCours(){
               </div>
               <Form onSubmit={UpdateForm.handleSubmit}>
                 <div className="modal-body">
-                    <Row>
-                        <Col>
-                        <label className="form-control-label">Emprunteur</label>
-                        <Input type="select" name="user_id" id="user_id"
-                            {...UpdateForm.getFieldProps('user_id')}>
-                            <option hidden>Selectionner ...</option>
-                            {users.map((item, index) => (
-                            <option key={index} value={item.id}>{item.name}</option>
-                            ))}
-                        </Input>
-                        {UpdateForm.errors.user_id && UpdateForm.touched.user_id ?
-                        <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
-                        <i className="ni ni-fat-remove" /> {UpdateForm.errors.user_id}
-                        </span></p> : null}
-                        </Col>
-                    </Row>
+                    <div className="alert alert-warning" role="alert">
+                      Votre réservation en ligne sera automatiquement annuler aprés
+                      <b> 3 jours</b> si vous allez pas prendre l'ouvrage.
+                    </div>
                     <Row>
                         <Col>
                         <label className="form-control-label">Ouvrage</label>
@@ -488,7 +630,7 @@ function EmpruntsEnCours(){
                     <Row>
                         <Col md="6">
                             <label className="form-control-label">Date Début</label>
-                            <Input className="form-control" placeholder="Date Début" type="date" min={currentDay}
+                            <Input className="form-control" placeholder="Date Début" type="date" min={emprunt.dateDebut}
                             name="dateDebut" id="dateDebut"
                             {...UpdateForm.getFieldProps('dateDebut')}>
                             </Input>
@@ -552,7 +694,7 @@ function EmpruntsEnCours(){
               </div>
               <div className="modal-footer">
                 <Button className="btn-white" color="default" type="button" onClick={delete_emprunt}>
-                  Supprimer
+                  Annuler
                 </Button>
                 <Button
                   className="text-white ml-auto"
@@ -561,55 +703,11 @@ function EmpruntsEnCours(){
                   type="button"
                   onClick={CloseDeleteModal}
                 >
-                  Annuler
+                  Fermer
                 </Button>
               </div>
             </Modal>
-            {/* Marque comme rendu */}
-            <Modal
-              className="modal-dialog-centered modal-danger"
-              contentClassName="bg-gradient-success"
-              isOpen={RenduModal}
-              toggle={CloseRenduModal}
-            >
-              <div className="modal-header">
-                <h6 className="modal-title" id="modal-title-notification">
-                  Ouvrage Rendu 
-                </h6>
-                <button
-                  aria-label="Close"
-                  className="close"
-                  data-dismiss="modal"
-                  type="button"
-                  onClick={CloseRenduModal}
-                >
-                  <span aria-hidden={true}>×</span>
-                </button>
-              </div>
-              <div className="modal-body">
-                <div className="py-3 text-center">
-                  <i className="ni ni-check-bold ni-4x" />
-                  <h4 className="heading mt-4">êtes-vous sûr!</h4>
-                  <p>
-                    Vous ne pourrez pas refaire cette opération
-                  </p>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <Button className="btn-white" color="default" type="button" onClick={()=>setAsRendu()}>
-                  Rendu
-                </Button>
-                <Button
-                  className="text-white ml-auto"
-                  color="link"
-                  data-dismiss="modal"
-                  type="button"
-                  onClick={CloseRenduModal}
-                >
-                  Annuler
-                </Button>
-              </div>
-            </Modal>
+           
             {/* Ouvrage Info */}
             <Modal
               className="modal-dialog-centered"
@@ -660,10 +758,16 @@ function EmpruntsEnCours(){
                         Category: {/*ouvrage !== null ? ouvrage.categorie.libelle : null*/} - Nombre d'exemplaires <Badge color="info" pill>{ouvrage.nbrExemplaire}</Badge>
                     </div>
                     <hr className="my-4" />
-                    <p>
+                    {ouvrage.resumer !== undefined ? 
+                      <ReactReadMoreReadLess
+                        charLimit={200}
+                        readMoreText={"Voir Plus ▼"}
+                        readLessText={"Voir Moins ▲"}
+                        readMoreClassName="read-more-less--more"
+                        readLessClassName="read-more-less--less"
+                      >
                         {ouvrage.resumer}
-                    </p>
-                    
+                      </ReactReadMoreReadLess> : null}
                     </div>
                 </CardBody>
                 </Card>
@@ -674,86 +778,8 @@ function EmpruntsEnCours(){
                     </Button>
                 </div>
             </Modal>
-            {/* Emprunteur Info */}
-            <Modal
-              className="modal-dialog-centered"
-              isOpen={EmprunteurModal}
-              toggle={CloseEmprunteurModal}
-            >
-              <div className="modal-header">
-                  <h6 className="modal-title" id="modal-title-notification">
-                    Description Emprunteur
-                  </h6>
-                  <button
-                    aria-label="Close"
-                    className="close"
-                    data-dismiss="modal"
-                    type="button"
-                    onClick={CloseEmprunteurModal}
-                  >
-                    <span aria-hidden={true}>×</span>
-                  </button>
-                </div>
-                <div className="modal-body">
-                <Card className="card-profile  border-0 pt-md-0">
-                <Row className="justify-content-center">
-                    <Col className="order-lg-2" lg="3">
-                    
-                    </Col>
-                </Row>
-                <CardHeader className="text-center border-0 pt-md-0" style={{"padding":"0px"}}>
-                    <div className="justify-content-center pt-md-0">
-                    <img 
-                        alt="..."
-                        src={`http://localhost:8000/api/images/${user.photo}`}
-                        style={{ width: "20%", padding:"3px" }}
-                    />
-                    <h3>
-                        {user.name}
-                        <span className="font-weight-light">- {user.numCarte}</span>
-                    </h3>
-                    <div className="h5 font-weight-300 pt-md-0">
-                        <i className="ni location_pin mr-2" />
-                        {user.email}
-                    </div>
-                    </div>
-                </CardHeader>
-                <CardBody  className="pt-md-0">
-                    <div className="pt-md-0">
-                    <hr className="my-4" />
-                    <div className="h5 font-weight-300">
-                        <i className="ni business_briefcase-24 mr-2" />
-                        <b>Num CIN</b> {user.cin}
-                    </div>
-                    <div className="h5 font-weight-300">
-                        <i className="ni business_briefcase-24 mr-2" />
-                        <b>Date de Naissance</b> {user.DateNaissance}
-                    </div>
-                    <div className="h5 font-weight-300">
-                        <i className="ni business_briefcase-24 mr-2" />
-                        <b>Adresse</b> {user.adresse}
-                    </div>
-                    <div className="h5 font-weight-300">
-                        <i className="ni business_briefcase-24 mr-2" />
-                        {user.ville},{user.appartement},{user.codePostal}
-                    </div>
-                    <div className="h5 font-weight-300">
-                        <i className="ni business_briefcase-24 mr-2" />
-                        <b>Profession</b> {user.profession}
-                    </div>
-                    </div>
-                </CardBody>
-                </Card>
-                </div>
-                <div className="modal-footer">
-                   <Button color="primary" type="button" onClick={CloseEmprunteurModal}>
-                        Annuler
-                    </Button>
-                </div>
-            </Modal>
-        </Row>
         </Container>
         </>
     );
 }
-export default EmpruntsEnCours ;
+export default MesEmprunts ;

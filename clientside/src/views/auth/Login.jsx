@@ -157,7 +157,7 @@ function Login(){
             </Form>
           </CardBody>
         </Card>
-        <Nav className="mt-3">
+        {/* <Nav className="mt-3">
           <NavItem className="text-left" xs="6"  style={{paddingRight : '100px'}}>
             <NavLink
               className="text-light"
@@ -174,7 +174,7 @@ function Login(){
               <small>Créer un nouveau compte</small>
             </NavLink>
           </NavItem>
-        </Nav>
+        </Nav> */}
       </Col>
     </>
   );

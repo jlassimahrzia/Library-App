@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
                 "name" => "Admin User",
                 'email' => 'admin@biblio.com',
                 'password' => '$2y$10$7/Bqh2o8Ev6Qfqn5yfa1rO/pf4iyOudu.Kcb5gaBFH9OPYa3JZjci', // 123456789
+                'photo' => "avatar.png",
                 'type' => '0'
             )
         );

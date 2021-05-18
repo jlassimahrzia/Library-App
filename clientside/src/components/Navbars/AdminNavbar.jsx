@@ -1,4 +1,4 @@
-import React from "react"
+import React , {useState , useEffect} from "react"
 import { useHistory } from 'react-router-dom'
 import { Link } from "react-router-dom"
 import AuthService from "services/AuthService"
@@ -13,16 +13,19 @@ import {
   Container,
   Media,
 } from "reactstrap";
-
+import LocalStorageService from "services/LocalStorageService" 
 function AdminNavbar(props){
 
   let history = useHistory();
-
+  const [user,setUser] = useState('');
   const logout = async () => {
     await AuthService.logout();
     history.push("/auth/login");
   }
-
+  useEffect(() => {
+    const user = LocalStorageService.getObject('user');
+    setUser(user);
+  }, [])
   return (
     <>
       <Navbar className="navbar-top navbar-dark" expand="md" id="navbar-main">
@@ -52,15 +55,12 @@ function AdminNavbar(props){
                   <span className="avatar avatar-sm rounded-circle">
                     <img
                       alt="..."
-                      src={
-                        require("../../assets/img/theme/team-4-800x800.jpg")
-                          .default
-                      }
+                      src={`http://localhost:8000/api/images/${user.photo}`}
                     />
                   </span>
                   <Media className="ml-2 d-none d-lg-block">
                     <span className="mb-0 text-sm font-weight-bold">
-                      Jessica Jones
+                      {user.name}
                     </span>
                   </Media>
                 </Media>

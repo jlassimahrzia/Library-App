@@ -382,7 +382,7 @@ h1 {
 .book-voters {
     color: #fff;
     vertical-align: sub;
-    font-size: 13px;
+    font-size: 14px;
     margin-left: 7px;
     white-space: nowrap;
     margin-top: 7px;
@@ -501,6 +501,7 @@ h1 {
 .book-type {
     position: relative;
     transition: 0.2s;
+    cursor: pointer;
 }
 
 .book-type.active,
@@ -614,7 +615,7 @@ h1 {
 .book-card {
     margin-top: 20px;
     background-color: #fff;
-    height: 270px;
+    height: 280px;
     box-shadow: -1px 3px 8px -1px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     display: flex;

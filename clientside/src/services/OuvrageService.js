@@ -21,6 +21,7 @@ class OuvrageService {
             });
         return tab
     }
+
     async upload_pdf(data) {
         const at = CookieService.get("access_token");
         let name = "";
@@ -140,6 +141,22 @@ class OuvrageService {
                 toast.error("Quelque chose s'est mal passé")
             });
         return tab
+    }
+    async store_stars(rating) {
+        const at = CookieService.get("access_token");
+        const options = {
+            headers: {
+                Authorization: "Bearer " + at,
+            },
+        };
+        await axios.post(`http://localhost:8000/api/store_rating`, rating, options)
+            .then(res => {
+                toast.success("Merci de donner votre avis")
+            })
+            .catch(error => {
+                console.log(error);
+                toast.error("Quelque chose s'est mal passé")
+            });
     }
 }
 export default new OuvrageService();

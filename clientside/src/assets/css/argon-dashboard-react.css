@@ -17505,7 +17505,7 @@ textarea[resize="horizontal"] {
 
 .map-canvas {
     position: relative;
-    width: 100%;
+    width: 500px;
     height: 500px;
     border-radius: 0.375rem;
 }
@@ -18648,23 +18648,23 @@ textarea[resize="horizontal"] {
 }
 
 .navbar-search-light .input-group {
-    border-color: rgba(0, 0, 0, 0.6);
+    border-color: #11cdef;
 }
 
 .navbar-search-light .input-group-text {
-    color: rgba(0, 0, 0, 0.6);
+    color: #11cdef;
 }
 
 .navbar-search-light .form-control {
-    color: rgba(0, 0, 0, 0.9);
+    color: #11cdef;
 }
 
 .navbar-search-light .form-control::placeholder {
-    color: rgba(0, 0, 0, 0.6);
+    color: #11cdef;
 }
 
 .navbar-search-light .focused .input-group {
-    border-color: rgba(0, 0, 0, 0.9);
+    border-color: #11cdef;
 }
 
 @media (min-width: 768px) {
