@@ -1,6 +1,5 @@
 import React , {useState} from "react";
 import { useHistory } from 'react-router-dom'
-import AuthService from "services/AuthService"
 // reactstrap components
 import {
   Button,
@@ -16,28 +15,34 @@ import {
   //Row,
   Col,
 } from "reactstrap";
-
+import { useFormik } from 'formik'
+import AuthService from 'services/AuthService'
+import * as Yup from 'yup'
+import { Toaster } from 'react-hot-toast';
 const Register = () => {
-  const [state, setState] = useState({
-    name: "",
-    email : "",
-    password : "",
-    type : '2'
+  let history = useHistory();
+  const validationSchema = Yup.object({
+    name: Yup.string().required('Il faut indiquer votre nom et prénom'),
+    password: Yup.string().required('Il faut indiquer votre mot de passe'),
+    email: Yup.string().email().required('Il faut indiquer votre email')
+  })
+  const RegisterForm = useFormik({
+    initialValues : {
+      name: '',
+      password: '',
+      email:'',
+      type : '2'
+    },
+    onSubmit: async (values)  => {
+      AuthService.Register(values);
+      history.push('/');
+    },
+    validationSchema
   })
 
-  let history = useHistory();
-
-  const handleChange = ({target}) => {
-      setState({ ...state, [target.name]: target.value })
-  }
-
-  const onSubmit = e => {
-      e.preventDefault();
-      AuthService.Register(state);
-      history.push('/');
-  }
   return (
     <>
+    <Toaster />
       <Col lg="6" md="8">
         <Card className="bg-secondary shadow border-0">
           {/* <CardHeader className="bg-transparent pb-5">
@@ -86,7 +91,7 @@ const Register = () => {
               {/* <small>Or sign up with credentials</small> */}
               <small>Inscrivez-vous avec vos identifiants</small>
             </div>
-            <Form role="form" onSubmit={onSubmit}>
+            <Form onSubmit={RegisterForm.handleSubmit}>
               <FormGroup>
                 <InputGroup className="input-group-alternative mb-3">
                   <InputGroupAddon addonType="prepend">
@@ -95,8 +100,12 @@ const Register = () => {
                     </InputGroupText>
                   </InputGroupAddon>
                   <Input placeholder="Nom et Prénom" type="text" 
-                  name="name" value={state.name} onChange={handleChange}/>
+                  name="name" {...RegisterForm.getFieldProps('name')}/>
                 </InputGroup>
+                {RegisterForm.errors.name && RegisterForm.touched.name ? 
+                      <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                        <i className="ni ni-fat-remove" /> {RegisterForm.errors.name }
+                  </span></p> : null}
               </FormGroup>
               <FormGroup>
                 <InputGroup className="input-group-alternative mb-3">
@@ -108,9 +117,12 @@ const Register = () => {
                   <Input
                     placeholder="Email"
                     type="email"
-                    name="email" value={state.email} onChange={handleChange}
-                  />
-                </InputGroup>
+                    name="email" {...RegisterForm.getFieldProps('email')}/>
+                    </InputGroup>
+                    {RegisterForm.errors.email && RegisterForm.touched.email ? 
+                          <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                            <i className="ni ni-fat-remove" /> {RegisterForm.errors.email }
+                      </span></p> : null}
               </FormGroup>
               <FormGroup>
                 <InputGroup className="input-group-alternative">
@@ -122,9 +134,12 @@ const Register = () => {
                   <Input
                     placeholder="Mot de passe"
                     type="password"
-                    name="password" value={state.password} onChange={handleChange}
-                  />
-                </InputGroup>
+                    name="password"  {...RegisterForm.getFieldProps('password')}/>
+                    </InputGroup>
+                    {RegisterForm.errors.password && RegisterForm.touched.password ? 
+                          <p className="mt-3 mb-0 text-muted text-sm"><span className="text-danger mr-2">
+                            <i className="ni ni-fat-remove" /> {RegisterForm.errors.password }
+                      </span></p> : null}
               </FormGroup>
               {/* <div className="text-muted font-italic">
                 <small>

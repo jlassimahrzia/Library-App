@@ -42,7 +42,7 @@ function Ouvrage() {
     const [deleteModal, setDeleteModal] = useState(false);
     const [id_delete, setDeleteId] = useState(null);
     // Pagination
-    const [pageSize] = useState(2)
+    const [pageSize] = useState(3)
     const [currentPage, setCurrentPage] = useState(0)
     const [pagesCount, setPagesCount] = useState(0)
     // Search
@@ -107,7 +107,7 @@ function Ouvrage() {
         const data = await OuvrageService.getAll();
         setOuvrages([...data])
     }
-    // Did Mount
+    // Did Mount load
     useEffect(() => {
         retrieveCategories();
         retrieveOuvrages();

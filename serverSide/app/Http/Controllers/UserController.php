@@ -67,7 +67,8 @@ class UserController extends Controller
             'name' => $request->json()->get('name'),
             'email' => $request->json()->get('email'),
             'password' => Hash::make($request->json()->get('password')),
-            'type' => $request->json()->get('type')
+            'type' => $request->json()->get('type'),
+            'photo' => "avatar.png"
         ]);
         $response = ['message' => 'You have been successfully signing up!'];
         return response($response, 200);
