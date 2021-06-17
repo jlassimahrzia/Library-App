@@ -8,6 +8,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 class RatingController extends Controller
 {
     public function store(Request $request){
@@ -58,5 +59,12 @@ class RatingController extends Controller
     public function get_all(){
         return Rating::with('user','ouvrage')->get();
     }
-
+    public function best_rate(){
+        return Rating::with('ouvrage.categorie','ouvrage.rating.user')
+        ->select(DB::raw('avg(rate) as moy,ouvrage_id'))
+        ->groupBy('ouvrage_id')
+        ->orderBy('moy','DESC')
+        ->take(5)
+        ->get();
+    }
 }

@@ -74,4 +74,5 @@ Route::middleware(['auth:api'])->group(function () {
     * Rating
     */
     Route::post('/store_rating', 'RatingController@store');
+    Route::get('/bestRate', 'RatingController@best_rate');
 });

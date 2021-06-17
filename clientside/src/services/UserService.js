@@ -97,7 +97,7 @@ class UserService {
                     });
                     toast.error(error)
                 } else {
-                    toast.success("Emprunteur créée avec succès");
+                    toast.success("Modification avec succès");
                     submitProps.resetForm();
                 }
             })

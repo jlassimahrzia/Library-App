@@ -3,7 +3,12 @@ import Flickity from 'react-flickity-component';
 import './style.css';
 import OuvrageService from 'services/OuvrageService'
 import CategoryService from 'services/CategoryService'
-import {Modal,Badge,Button,Row,Col,Table,Form,Input} from "reactstrap"
+import {Modal,Badge,Button,Row,Col,Table,Form,Input,
+  InputGroup,
+  InputGroupAddon,
+  FormGroup,
+  Label,InputGroupText,
+  Spinner} from "reactstrap"
 import Viewer, { Worker } from '@phuocng/react-pdf-viewer';
 import '@phuocng/react-pdf-viewer/cjs/react-pdf-viewer.css';
 import ReactReadMoreReadLess from "react-read-more-read-less";
@@ -19,10 +24,10 @@ const flickityOptions = {
   wrapAround: true,
   initialIndex: 1
 };
-
 function Home() {
   // Lists
   const [ouvrages, setOuvrages] = useState([]);
+  const [topratedlist, setTopratedlist] = useState([]);
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
   // Items
@@ -41,10 +46,17 @@ function Home() {
   const [starstab, setStarstab] = useState([]);
   // autres
   const [currentDay,setCurrentDay] = useState('');
+  // Search
+  const [search, setSearch] = useState("");
   // load list of ouvrages
   const retrieveOuvrages = async () => {
     const data = await OuvrageService.getAll();
     setOuvrages([...data])
+  }
+  // load top list of ouvrages
+  const retrieveTopRatedList = async () => {
+    const data = await OuvrageService.top_rated();
+    setTopratedlist([...data])
   }
   // load list of categories
   const retrieveCategories = async () => {
@@ -55,13 +67,26 @@ function Home() {
   useEffect(() => {
     retrieveCategories();
     retrieveOuvrages();
+    retrieveTopRatedList();
     setUser(LocalStorageService.getObject('user'))
     setCurrentDay(getCurrentDay())
   }, [])
   // DidUpdate
   useEffect(() => {
 
-  }, [categories, ouvrages,ouvrage,pdfModal,pdf,user,UsersModal]);
+  }, [categories, ouvrages,ouvrage,pdfModal,pdf,user,UsersModal, search]);
+  // Search
+  const handleInput = async (value) => {
+    setSearch(value)
+    const data = await OuvrageService.search({ "search": search });
+    console.log(data);
+    setOuvrages([...data])
+    if (value === "")
+        retrieveOuvrages();
+  }
+  const topRate = () => {
+
+  }
   // Ouvrage Modal
   const OpenOuvrageModal = (ouvrage) => {
     setOuvrage(ouvrage)
@@ -178,7 +203,8 @@ function Home() {
     <>
     <Toaster />
     <div className="book-store">
-      <div className="book-slide">
+  
+       <div className="book-slide">
         <Flickity
           className={'book'} // default ''
           elementType={'div'} // default 'div'
@@ -187,19 +213,19 @@ function Home() {
           reloadOnUpdate // default false
           static // default false
         >
-        { ouvrages.slice(1,4).map((item, index) => (
+        { topratedlist.map((item, index) => (
           <div className="book-cell" key={index}>
             <div className="book-img">
               <img
-                src={`http://localhost:8000/api/photos_couverture/${item.photoCouverture}`}
+                src={`http://localhost:8000/api/photos_couverture/${item.ouvrage.photoCouverture}`}
                 alt=""
                 className="book-photo"
                 style={{"width":"180px","height":"269.84px"}}
               />
             </div>
             <div className="book-content">
-            <div className="book-title">{item.titre}</div>
-            <div className="book-author">Ecrit par {item.auteur}</div>
+            <div className="book-title">{item.ouvrage.titre}</div>
+            <div className="book-author">Ecrit par {item.ouvrage.auteur}</div>
               <div className="rate">
                 <fieldset className="rating">
                   <input
@@ -238,20 +264,36 @@ function Home() {
                   />
                   <label className="full" htmlFor="star1" />
                 </fieldset>
-                <span className="book-voters">1.987 voters</span>
+                <span className="book-voters">Top {++index}</span>
               </div>
               <div className="book-sum">
-                {item.resumer}
+                {item.ouvrage.resumer}
               </div>
-              <div className="book-see book-blue" onClick={() => OpenOuvrageModal(item)}>Voir Ouvrage</div>
+              <div className="book-see book-blue" onClick={() => OpenOuvrageModal(item.ouvrage)}>Voir Ouvrage</div>
             </div>
           </div>
           ))}
          </Flickity>
-      </div>
-     
+      </div> 
+    
       <div className="main-wrapper">
         <div className="popular-books">
+                            <FormGroup>
+                                <InputGroup className="input-group-alternative mb-4">
+                                    <InputGroupAddon addonType="prepend">
+                                        <InputGroupText>
+                                            <i className="ni ni-zoom-split-in" />
+                                        </InputGroupText>
+                                    </InputGroupAddon>
+                                    <Input
+                                        className="form-control-alternative"
+                                        placeholder="Chercher par codeIsbn ou titre ou auteur ou edition .... "
+                                        type="text"
+                                        value={search}
+                                        onChange={e => handleInput(e.target.value)}
+                                    />
+                                </InputGroup>
+                            </FormGroup>         
           <div className="main-menu">
             <div className="genre">Categories</div>
 
@@ -334,6 +376,7 @@ function Home() {
            </div>
         </div>
       </div>
+
       </div>
             {/* Description Modal */}
             <Modal
@@ -409,7 +452,8 @@ function Home() {
                   </Row>
                   <div className="ml-3">
                     <hr className="my-4" />
-                    {starstab !== undefined ? <ThemeProvider theme={theme}>
+                    {starstab !== undefined ? 
+                    <ThemeProvider theme={theme}>
                       <Rating values={starstab} /> 
                     </ThemeProvider> : null}
                   </div>

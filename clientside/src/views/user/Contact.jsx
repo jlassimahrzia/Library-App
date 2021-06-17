@@ -146,6 +146,9 @@ function Contact(){
                       />
                     </FormGroup>
                   </div>
+                  <Button color="primary" type="button" >
+                      Envoyer
+                  </Button> 
                 </Form>
               </CardBody>
             </Card>

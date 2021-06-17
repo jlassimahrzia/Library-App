@@ -158,5 +158,24 @@ class OuvrageService {
                 toast.error("Quelque chose s'est mal passé")
             });
     }
+
+    async top_rated() {
+        let tab = [];
+        const at = CookieService.get("access_token");
+        const options = {
+            headers: {
+                Authorization: "Bearer " + at,
+            },
+        };
+        await axios.get(`http://localhost:8000/api/bestRate`, options)
+            .then(res => {
+                tab = res.data;
+            })
+            .catch(error => {
+                console.log(error);
+                toast.error("Quelque chose s'est mal passé")
+            });
+        return tab
+    }
 }
 export default new OuvrageService();

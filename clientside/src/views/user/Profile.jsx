@@ -14,16 +14,22 @@ import {
     Col,
   } from "reactstrap";
 import LocalStorageService from "services/LocalStorageService" 
+import UserService from 'services/UserService'
+import AuthService from 'services/AuthService'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import { Toaster } from 'react-hot-toast';
 function Profile (){
     const [user,setUser] = useState('');
     const [FileError , setFileError] = useState(null)
     const [photo , setPhoto] = useState('')
     useEffect(() => {
-      const user = LocalStorageService.getObject('user');
-      setUser(user);
+        connected_user();
     }, [])
+    const connected_user = async () => {
+        const user = await AuthService.user();
+        setUser(user);
+    }
     const handleImage = (e) => {
         setFileError(null);
         let files = e.target.files || e.dataTransfer.files;
@@ -75,12 +81,11 @@ function Profile (){
             appartement: user ? user.appartement : "",
             ville: user ? user.ville : "",
             codePostal: user ? user.codePostal : "",
-            profession: user ? user.profession : "",
-            newpassword : '',
-            oldpassword : ''
+            profession: user ? user.profession : ""
         },
         onSubmit: (values,submitProps)  => {
-           
+            UserService.update(user.id ,values,photo,submitProps);
+            connected_user()
         },
         validationSchema,
         enableReinitialize:true
@@ -88,6 +93,7 @@ function Profile (){
     return (
         <>
         <PageHeader />
+        <Toaster />
         <Container className="mt--7" fluid>
             <Row>
             <Col className="order-xl-2 mb-5 mb-xl-0" xl="4">
@@ -158,7 +164,7 @@ function Profile (){
                     </Row>
                 </CardHeader>
                 <CardBody>
-                <Form onSubmit={ProfilForm.handleSubmit}>
+            <Form onSubmit={ProfilForm.handleSubmit}>
               <div className="modal-body">
                     <h6 className="heading-small text-muted mb-4">
                         Informations Générales
@@ -353,7 +359,7 @@ function Profile (){
                         </Col>
                     </Row>
                    </div>
-                   <h6 className="heading-small text-muted mb-4">
+                   {/* <h6 className="heading-small text-muted mb-4">
                         Changer Mot de passe
                     </h6>
                     <div className="pl-lg-4">
@@ -389,8 +395,11 @@ function Profile (){
                         </FormGroup>
                         </Col>
                     </Row>
-                    </div>
+                    </div> */}
                    </div>
+                   <Button color="primary" type="submit" >
+                      Modifier
+                  </Button> 
                 </Form>
                 </CardBody>
                 </Card>
